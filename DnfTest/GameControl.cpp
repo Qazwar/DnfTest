@@ -50,6 +50,7 @@ void CGameControl::InputCodes()
 	CKeyMouMng::Ptr()->InputPassword(account.password.c_str());
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClick(1044,482);  //点击登录
+	LOG_DEBUG<<"点击登录按钮";
 }
 
 void CGameControl::CreateRole()
@@ -58,6 +59,7 @@ void CGameControl::CreateRole()
 	{
 		Sleep(500);
 	}
+	LOG_DEBUG<<"开始创建角色";
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(468,823);  //点击创建角色
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(1416,645);  //创建角色第二步
@@ -124,7 +126,7 @@ void CGameControl::ClickAgreement()
 	bFind = ImageMatchFromHwnd(hLoginWnd,ImagePath,0.5,nXtmp,nYtmp,false);
 	if (bFind)
 	{
-		LOG_DEBUG<<"【可以进入登录了】 Login 图片 X:"<<nXtmp<<" Y:"<<nYtmp;
+		LOG_DEBUG<<"【同意协议没有被勾选】 图片 X:"<<nXtmp<<" Y:"<<nYtmp;
 		bFind = TRUE;
 	}else
 	{

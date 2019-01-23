@@ -31,6 +31,8 @@ void CDnfTestDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST_ACCOUNT, m_ListAccount);
 	DDX_Control(pDX, IDC_MFCEDITBROWSE_GAME, m_EditGame);
+	DDX_Control(pDX, IDC_COMBO_RISK_GROUP, m_ComboRiskGroup);
+	DDX_Control(pDX, IDC_COMBO_ROLE_NAME, m_ComboRoleName);
 }
 
 BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
@@ -57,7 +59,7 @@ BOOL CDnfTestDlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 	//初始化WinIo库
-	initListCtrl();
+	InitData();
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -148,7 +150,7 @@ void CDnfTestDlg::StartCreateRole(void*)
 	gameControl.EndGame();
 }
 
-void CDnfTestDlg::initListCtrl()
+void CDnfTestDlg::InitData()
 {
 	m_EditGame.SetWindowText(common::stringToCString(config_instance.game_path));
 	m_ListAccount.InsertColumn(0,"序列号",LVCFMT_LEFT, 50);
@@ -165,6 +167,17 @@ void CDnfTestDlg::initListCtrl()
 		 m_ListAccount.SetItemText(i, 3, common::stringToCString(account.password));
 		 m_ListAccount.SetItemText(i, 4, common::stringToCString(account.role_name));
 	}
+	m_ComboRoleName.AddString(_T("小写字母+数字"));
+	m_ComboRoleName.AddString(_T("简体中文"));
+	m_ComboRoleName.AddString(_T("简体中文+字母"));
+	m_ComboRoleName.AddString(_T("简体中文+数字"));
+	m_ComboRoleName.SetCurSel(0);
+
+	m_ComboRiskGroup.AddString(_T("小写字母+数字"));
+	m_ComboRiskGroup.AddString(_T("简体中文"));
+	m_ComboRiskGroup.AddString(_T("简体中文+字母"));
+	m_ComboRiskGroup.AddString(_T("简体中文+数字"));
+	m_ComboRiskGroup.SetCurSel(0);
 }
 
 void CDnfTestDlg::OnBnClickedButtonCreateRole()

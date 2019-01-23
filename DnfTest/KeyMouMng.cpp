@@ -291,7 +291,7 @@ void CKeyMouMng::InputPassword(const char* szBuffer)
 	// 将前台窗口线程贴附到当前线程（也就是程序A中的调用线程）
 	AttachThreadInput(dwThread, GetCurrentThreadId(), TRUE);
 	
-	HWND hFocus = GetFocus();
+	//HWND hFocus = GetFocus();
 	for(auto i(0); i < strlen(szBuffer); i++)
 	{
 		char szChar = szBuffer[i];

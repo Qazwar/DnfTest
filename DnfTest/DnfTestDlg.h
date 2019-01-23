@@ -5,6 +5,7 @@
 #pragma once
 #include "afxcmn.h"
 #include "afxeditbrowsectrl.h"
+#include "afxwin.h"
 
 
 // CDnfTestDlg ¶Ô»°¿ò
@@ -36,7 +37,7 @@ private:
 	static void StartProcess(void*);
 	static void StartInputCodes(void*);
 	static void StartCreateRole(void*);
-	void initListCtrl();
+	void InitData();
 public:
 	afx_msg void OnBnClickedButtonCreateRole();
 	afx_msg void OnBnClickedButton1();
@@ -44,4 +45,6 @@ public:
 	CMFCEditBrowseCtrl m_EditGame;
 	afx_msg void OnEnChangeMfceditbrowseGame();
 	afx_msg void OnEnUpdateMfceditbrowseGame();
+	CComboBox m_ComboRiskGroup;
+	CComboBox m_ComboRoleName;
 };
