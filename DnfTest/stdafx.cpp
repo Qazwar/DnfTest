@@ -47,21 +47,3 @@ bool GetPath(OUT char* path)
 	return true;
 }
 
-void __cdecl _DbgPrint(char* lpszFormat, ...)
-{
-#ifdef _DEBUG
-	va_list args;
-	va_start(args, lpszFormat);
-	int nBuf;
-	TCHAR szBuffer[sizeof(TCHAR) * 10240] ={TEXT("WatchDogX ---> Debug:")};
-#ifdef UNICODE
-	nBuf = _vstprintf(szBuffer + wcslen(szBuffer)*sizeof(TCHAR), lpszFormat, args); 
-#else
-	nBuf = _vstprintf(szBuffer + strlen(szBuffer)*sizeof(TCHAR), lpszFormat, args); 
-#endif
-	// was there an error? was the expanded string too long?
-	//ASSERT(nBuf >= 0);
-	va_end(args);
-	OutputDebugString(szBuffer);
-#endif // _DEBUG
-}

@@ -6,7 +6,8 @@
 char g_ExePath[MAX_PATH] = {0};
 
 
-CGameControl::CGameControl(void)
+CGameControl::CGameControl(void):
+m_Index(0)
 {
 	GetPath(g_ExePath);
 }
@@ -25,10 +26,12 @@ void CGameControl::InputCodes()
 {
 	while (!IsCanLogin())
 	{
-		Sleep(500);
+	Sleep(500);
 	}
-	ClickLoginInArea();
 	Sleep(1000);
+	ClickLoginInArea();
+	ClickAgreement();
+	Sleep(2000);
 	CKeyMouMng::Ptr()->MouseMoveAndClick(1092,328);  //点击编辑框
 	Sleep(200);
 	for (auto i = 0; i<20; i++)
@@ -61,7 +64,7 @@ void CGameControl::CreateRole()
 	Sleep(1000);
 	const auto& account = config_instance.accounts.at(this->m_Index);
 	CKeyMouMng::Ptr()->InputCharByKeyBoard(account.role_name.c_str());
-	_DbgPrint("【角色名字】 CreateRole name %s\n", account.role_name.c_str());
+	LOG_DEBUG<<"【角色名字】 CreateRole name "<<account.role_name.c_str();
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(910,428);  //点击检测重复
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(802,483); 
@@ -96,7 +99,7 @@ bool CGameControl::IsCanCreateRoles()
 	bFind = ImageMatchFromHwnd(hGameWnd,ImagePath,0.5,nXtmp,nYtmp,false);
 	if (bFind)
 	{
-		_DbgPrint("【可以进入游戏了】 CreateRole 图片 X:%d Y:%d\n",nXtmp,nYtmp);
+		LOG_DEBUG<<"【可以创建角色了】 CreateRole 图片 X:"<<nXtmp<<" Y:",nYtmp;
 		bFind = TRUE;
 	}else
 	{
@@ -105,6 +108,33 @@ bool CGameControl::IsCanCreateRoles()
 	}	
 
 	return bFind;
+}
+
+void CGameControl::ClickAgreement()
+{
+	BOOL bFind = FALSE;
+	int nXtmp = 0,nYtmp = 0;
+	HWND hLoginWnd = GetLoginWnd();
+	if (hLoginWnd == NULL) 
+		return;
+
+	TCHAR ImagePath[MAX_PATH] = {0};
+	wsprintf(ImagePath, _T("%sMatchImage\\Game\\Agreement.png"), g_ExePath);
+
+	bFind = ImageMatchFromHwnd(hLoginWnd,ImagePath,0.5,nXtmp,nYtmp,false);
+	if (bFind)
+	{
+		LOG_DEBUG<<"【可以进入登录了】 Login 图片 X:"<<nXtmp<<" Y:"<<nYtmp;
+		bFind = TRUE;
+	}else
+	{
+		//_DbgPrint("没找到CanEnterGame图片\n");
+		bFind = FALSE;
+	}
+	if(bFind){
+		CKeyMouMng::Ptr()->MouseMoveAndClick(948,413); //点击创建角色成功
+	}
+	Sleep(100);
 }
 
 bool CGameControl::IsCanLogin()
@@ -121,7 +151,7 @@ bool CGameControl::IsCanLogin()
 	bFind = ImageMatchFromHwnd(hLoginWnd,ImagePath,0.5,nXtmp,nYtmp,false);
 	if (bFind)
 	{
-		_DbgPrint("【可以进入登录了】 Login 图片 X:%d Y:%d\n",nXtmp,nYtmp);
+		LOG_DEBUG<<"【可以进入登录了】 Login 图片 X:"<<nXtmp<<" Y:"<<nYtmp;
 		bFind = TRUE;
 	}else
 	{
@@ -161,7 +191,7 @@ BOOL CGameControl::ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSa
 
 		if (rect.left < 0 || rect.top < 0)
 		{
-			_DbgPrint("窗体被最小化了");
+			LOG_DEBUG<<"窗体被最小化了";
 			SetWindowPos(hWnd,HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE);
 			::GetWindowRect(hWnd, &rect); 
 		}else
@@ -215,7 +245,7 @@ BOOL CGameControl::ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSa
 
 		if( Tpl == NULL ) 
 		{ 
-			_DbgPrint("打开原图像失败:%s",ImagePath);
+			LOG_DEBUG<<"打开原图像失败:"<<ImagePath;
 			goto _Error;
 		} 
 
@@ -236,7 +266,7 @@ BOOL CGameControl::ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSa
 		cvMatchTemplate(ImgGray,TplGray,matRes,CV_TM_CCOEFF_NORMED);
 		//找到最佳匹配位置 
 		cvMinMaxLoc(matRes,&min_val,&max_val,&min_loc,&max_loc,NULL); 
-		_DbgPrint("MaxVal:%f",max_val);
+		LOG_DEBUG<<"MaxVal:"<<max_val;
 		//_DbgPrint("匹配位置X = %d,Y = %d",max_loc.x,max_loc.y);
 
 		cvSetImageROI(ImgGray,cvRect(max_loc.x,max_loc.y,TplGray->width,TplGray->height));
@@ -294,7 +324,7 @@ _Error:
 			NULL
 			);
 
-		_DbgPrint((char*)lpMsgBuf);
+		LOG_DEBUG<<(char*)lpMsgBuf;
 
 		LocalFree(lpMsgBuf);
 		return NULL;
@@ -345,7 +375,7 @@ IplImage* CGameControl::HBitmapToLpl(HBITMAP hBmp)
 			NULL
 			);
 
-		_DbgPrint((char*)lpMsgBuf);
+		LOG_DEBUG<<(char*)lpMsgBuf;
 
 		LocalFree(lpMsgBuf);
 		return NULL;

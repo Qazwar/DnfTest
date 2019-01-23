@@ -14,7 +14,9 @@ class Config :public boost::serialization::singleton<Config>
 
 public:
 	Config();
+	string game_path;
 	vector<account_info> accounts;
+	void SaveData();
 private:
 	string readFileIntoString(char * filename);
 	  

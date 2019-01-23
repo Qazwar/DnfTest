@@ -66,8 +66,8 @@ using namespace std;
 #include <list>
 #include <vector>
 #include "MyLog.h"
+#include "CommonStatic.h"
 
-void __cdecl _DbgPrint(char* lpszFormat, ...);
 HWND GetLoginWnd();
 HWND GetGameWnd();
 //»ñµÃÂ·¾¶

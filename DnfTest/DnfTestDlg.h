@@ -3,6 +3,8 @@
 //
 
 #pragma once
+#include "afxcmn.h"
+#include "afxeditbrowsectrl.h"
 
 
 // CDnfTestDlg ¶Ô»°¿ò
@@ -34,8 +36,12 @@ private:
 	static void StartProcess(void*);
 	static void StartInputCodes(void*);
 	static void StartCreateRole(void*);
+	void initListCtrl();
 public:
 	afx_msg void OnBnClickedButtonCreateRole();
 	afx_msg void OnBnClickedButton1();
-	afx_msg void OnBnClickedButtonCreateRoles();
+	CListCtrl m_ListAccount;
+	CMFCEditBrowseCtrl m_EditGame;
+	afx_msg void OnEnChangeMfceditbrowseGame();
+	afx_msg void OnEnUpdateMfceditbrowseGame();
 };

@@ -119,7 +119,7 @@ BOOL CKeyMouMng::KeyboardButtonEx(BYTE VirtualKey, int ControlVirtualKey)
 	auto ret = SendInput(1, input, sizeof(INPUT));//返回值是成功插入的个数
 	if (ret!=1)
 	{
-		_DbgPrint("输入密码返回值:%d,错误:%d ", ret,GetLastError());
+		LOG_DEBUG<<"输入密码返回值:"<<ret<<",错误: ", GetLastError();
 	}
 	//接下来释放它，这一点很重要。
 	input[1].ki.dwFlags = KEYEVENTF_KEYUP|KEYEVENTF_SCANCODE;
@@ -130,7 +130,7 @@ BOOL CKeyMouMng::KeyboardButtonEx(BYTE VirtualKey, int ControlVirtualKey)
 	ret = SendInput(1, input+1, sizeof(INPUT));//返回值是成功插入的个数
 	if (ret!=1)
 	{
-		_DbgPrint("输入密码返回值:%d,错误:%d ", ret,GetLastError());
+		LOG_DEBUG<<"输入密码返回值:"<<ret<<",错误: ", GetLastError();
 	}
 
 	/*HWND hLoginWnd = NULL;

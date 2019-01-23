@@ -190,6 +190,7 @@
   <ItemGroup>
     <ClInclude Include="CJsonObject\cJSON.h" />
     <ClInclude Include="CJsonObject\CJsonObject.hpp" />
+    <ClInclude Include="CommonStatic.h" />
     <ClInclude Include="Common\singleton.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="DnfTest.h" />
@@ -210,6 +211,7 @@
     <ClCompile Include="CJsonObject\CJsonObject.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="CommonStatic.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="DnfTest.cpp" />
     <ClCompile Include="DnfTestDlg.cpp" />

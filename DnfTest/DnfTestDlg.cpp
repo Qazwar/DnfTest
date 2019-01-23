@@ -8,6 +8,7 @@
 #include "afxdialogex.h"
 #include "GameControl.h"
 #include "winio.h"
+#include "Config.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -28,6 +29,8 @@ CDnfTestDlg::CDnfTestDlg(CWnd* pParent /*=NULL*/)
 void CDnfTestDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_LIST_ACCOUNT, m_ListAccount);
+	DDX_Control(pDX, IDC_MFCEDITBROWSE_GAME, m_EditGame);
 }
 
 BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
@@ -36,7 +39,8 @@ BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_START, &CDnfTestDlg::OnBnClickedButtonStart)
 	ON_BN_CLICKED(IDC_BUTTON_CREATE_ROLE, &CDnfTestDlg::OnBnClickedButtonCreateRole)
 	ON_BN_CLICKED(IDC_BUTTON1, &CDnfTestDlg::OnBnClickedButton1)
-	ON_BN_CLICKED(IDC_BUTTON_CREATE_ROLES, &CDnfTestDlg::OnBnClickedButtonCreateRoles)
+	ON_EN_CHANGE(IDC_MFCEDITBROWSE_GAME, &CDnfTestDlg::OnEnChangeMfceditbrowseGame)
+	ON_EN_UPDATE(IDC_MFCEDITBROWSE_GAME, &CDnfTestDlg::OnEnUpdateMfceditbrowseGame)
 END_MESSAGE_MAP()
 
 
@@ -53,7 +57,7 @@ BOOL CDnfTestDlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 	//初始化WinIo库
-	InitializeWinIo();
+	initListCtrl();
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -105,32 +109,29 @@ void CDnfTestDlg::StartProcess(void*)
 	// TODO: 在此添加控件通知处理程序代码
 	STARTUPINFOA StartupInfo;
 	PROCESS_INFORMATION ProcessInformation;
-	//	StartupInfo.cb = sizeof(STARTUPINFOA);
-
-	// 	char strFilePath1[MAX_PATH] = "D:\\天涯明月刀\\TCLS\\Client.exe";              //新进程执行程序
-	// 
-	// 
-	// 	PROCESS_INFORMATION pt;
-	// 	STARTUPINFO si;                                       //PC版这个参数不加，会导致创建进程出错，wce不用，直接为NULL
-	ZeroMemory(&StartupInfo, sizeof(StartupInfo));
+		ZeroMemory(&StartupInfo, sizeof(StartupInfo));
 	ZeroMemory(&ProcessInformation, sizeof(ProcessInformation));
 
 	//StartupInfo.dwFlags = STARTF_USESHOWWINDOW;//指定wShowWindow成员有效
 	StartupInfo.wShowWindow = TRUE;//此成员设为TRUE的话则显示新建进程的主窗口
-	CreateProcessA("C:\\Program Files\\腾讯游戏\\地下城与勇士\\TCLS\\Client.exe",
-	NULL,
-	NULL, NULL,
-	0,
-	NULL,
-	NULL,
-	"C:\\Program Files\\腾讯游戏\\地下城与勇士\\TCLS\\",
-	&StartupInfo,
-	&ProcessInformation);
-	Sleep(5000);
+	CreateProcessA((config_instance.game_path+"\\Client.exe").c_str(),
+		NULL,
+		NULL, NULL,
+		0,
+		NULL,
+		NULL,
+		config_instance.game_path.c_str(),
+		&StartupInfo,
+		&ProcessInformation);
+	if(ProcessInformation.hProcess==NULL)
+	{
+		AfxMessageBox(_T("启动游戏失败"), MB_OK);
+		return;
+	}
 	CGameControl gameControl;
 	gameControl.InputCodes();
-	/*gameControl.CreateRole(_T("kkkgggg"));
-	gameControl.EndGame();*/
+	gameControl.CreateRole();
+	gameControl.EndGame();
 }
 
 
@@ -147,6 +148,25 @@ void CDnfTestDlg::StartCreateRole(void*)
 	gameControl.EndGame();
 }
 
+void CDnfTestDlg::initListCtrl()
+{
+	m_EditGame.SetWindowText(common::stringToCString(config_instance.game_path));
+	m_ListAccount.InsertColumn(0,"序列号",LVCFMT_LEFT, 50);
+	m_ListAccount.InsertColumn(1,"状态", LVCFMT_LEFT, 200);
+	m_ListAccount.InsertColumn(2,"qq号码", LVCFMT_LEFT, 200);
+	m_ListAccount.InsertColumn(3,"密码",LVCFMT_LEFT, 200);
+	m_ListAccount.InsertColumn(4,"角色名", LVCFMT_LEFT, 200);
+	for(auto i(0); i < config_instance.accounts.size(); i++)
+	{
+		 const auto& account = config_instance.accounts.at(i);
+		 m_ListAccount.InsertItem(0, common::IntToCString(i+1));
+		 m_ListAccount.SetItemText(i, 1, _T("启动中"));
+		 m_ListAccount.SetItemText(i, 2, common::stringToCString(account.qq));
+		 m_ListAccount.SetItemText(i, 3, common::stringToCString(account.password));
+		 m_ListAccount.SetItemText(i, 4, common::stringToCString(account.role_name));
+	}
+}
+
 void CDnfTestDlg::OnBnClickedButtonCreateRole()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -161,9 +181,31 @@ void CDnfTestDlg::OnBnClickedButton1()
 }
 
 
-void CDnfTestDlg::OnBnClickedButtonCreateRoles()
+
+
+void CDnfTestDlg::OnEnChangeMfceditbrowseGame()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	CGameControl gameControl;
-	gameControl.CreateRole();
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	CString Text;
+	m_EditGame.GetWindowText(Text);
+	if(Text.Compare(common::stringToCString(config_instance.game_path))!=0){
+		config_instance.game_path = common::CStringTostring(Text);
+		config_instance.SaveData();
+	}
+}
+
+
+void CDnfTestDlg::OnEnUpdateMfceditbrowseGame()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+	// 函数，以将 EM_SETEVENTMASK 消息发送到该控件，
+	// 同时将 ENM_UPDATE 标志“或”运算到 lParam 掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
 }

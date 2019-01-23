@@ -18,6 +18,7 @@ public:
 	void SetAccountIndex(const int& index);
 private:
 	bool IsCanCreateRoles();
+	void ClickAgreement();
 	bool IsCanLogin();
 	BOOL ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSame,
 		OUT int& nX,OUT int& nY,bool bSave);
