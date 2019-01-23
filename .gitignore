@@ -3,3 +3,5 @@ Debug/
 X64/
 ipch/
 
+*.opensdf
+*.sdf
