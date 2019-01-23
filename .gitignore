@@ -1,0 +1,5 @@
+*.suo
+Debug/
+X64/
+ipch/
+
