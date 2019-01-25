@@ -33,6 +33,8 @@ void CDnfTestDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_MFCEDITBROWSE_GAME, m_EditGame);
 	DDX_Control(pDX, IDC_COMBO_RISK_GROUP, m_ComboRiskGroup);
 	DDX_Control(pDX, IDC_COMBO_ROLE_NAME, m_ComboRoleName);
+	DDX_Control(pDX, IDC_COMBO_AREA, m_ComboArea);
+	DDX_Control(pDX, IDC_COMBO_SERVER, m_ComboServer);
 }
 
 BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
@@ -43,6 +45,7 @@ BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &CDnfTestDlg::OnBnClickedButton1)
 	ON_EN_CHANGE(IDC_MFCEDITBROWSE_GAME, &CDnfTestDlg::OnEnChangeMfceditbrowseGame)
 	ON_EN_UPDATE(IDC_MFCEDITBROWSE_GAME, &CDnfTestDlg::OnEnUpdateMfceditbrowseGame)
+	ON_CBN_SELCHANGE(IDC_COMBO_AREA, &CDnfTestDlg::OnCbnSelchangeComboArea)
 END_MESSAGE_MAP()
 
 
@@ -167,17 +170,33 @@ void CDnfTestDlg::InitData()
 		 m_ListAccount.SetItemText(i, 3, common::stringToCString(account.password));
 		 m_ListAccount.SetItemText(i, 4, common::stringToCString(account.role_name));
 	}
-	m_ComboRoleName.AddString(_T("小写字母+数字"));
-	m_ComboRoleName.AddString(_T("简体中文"));
-	m_ComboRoleName.AddString(_T("简体中文+字母"));
-	m_ComboRoleName.AddString(_T("简体中文+数字"));
-	m_ComboRoleName.SetCurSel(0);
+	auto roleNameArray = common::SplitString(config_instance.role_name, ';');
+	for (auto i(0); i < roleNameArray->GetSize(); i++)
+	{
+		m_ComboRoleName.AddString(roleNameArray->GetAt(i));
+	}
+	if(roleNameArray->GetSize()>0){
+		m_ComboRoleName.SetCurSel(0);
+	}
+	delete roleNameArray;
+	roleNameArray = nullptr;
 
-	m_ComboRiskGroup.AddString(_T("小写字母+数字"));
-	m_ComboRiskGroup.AddString(_T("简体中文"));
-	m_ComboRiskGroup.AddString(_T("简体中文+字母"));
-	m_ComboRiskGroup.AddString(_T("简体中文+数字"));
-	m_ComboRiskGroup.SetCurSel(0);
+	auto riskGroupArray = common::SplitString(config_instance.role_name, ';');
+	for (auto i(0); i < riskGroupArray->GetSize(); i++)
+	{
+		m_ComboRiskGroup.AddString(riskGroupArray->GetAt(i));
+	}
+	if(riskGroupArray->GetSize()>0){
+		m_ComboRiskGroup.SetCurSel(0);
+	}
+	delete riskGroupArray;
+	riskGroupArray = nullptr;
+	m_ComboArea.AddString(_T("请选择大区"));
+	for (int i(0); i < config_instance.game_area.size(); i++)
+	{
+		m_ComboArea.AddString(common::stringToCString(config_instance.game_area.at(i).name));
+	}
+	m_ComboArea.SetCurSel(0);
 }
 
 void CDnfTestDlg::OnBnClickedButtonCreateRole()
@@ -221,4 +240,19 @@ void CDnfTestDlg::OnEnUpdateMfceditbrowseGame()
 	// 同时将 ENM_UPDATE 标志“或”运算到 lParam 掩码中。
 
 	// TODO:  在此添加控件通知处理程序代码
+}
+
+
+void CDnfTestDlg::OnCbnSelchangeComboArea()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	const auto & Index = m_ComboArea.GetCurSel() - 1;
+	const auto & list_server = config_instance.game_area.at(Index).server;
+	m_ComboServer.ResetContent();
+	m_ComboServer.AddString(_T("请选择"));
+	for (int i(0); i < list_server.size(); i++)
+	{
+		m_ComboServer.AddString(common::stringToCString(list_server.at(i)));
+	}
+	m_ComboServer.SetCurSel(0);
 }

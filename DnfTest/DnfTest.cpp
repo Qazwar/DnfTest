@@ -56,6 +56,8 @@ BOOL CDnfTestApp::InitInstance()
 	if(InitializeWinIo()==false)
 	{
 		LOG_DEBUG<<"驱动程序加载失败! ";
+		//AfxMessageBox(_T("由于驱动程序加载失败，程序将退出！"));
+		//return FALSE;
 	}
 
 

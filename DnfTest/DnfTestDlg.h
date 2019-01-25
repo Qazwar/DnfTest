@@ -47,4 +47,7 @@ public:
 	afx_msg void OnEnUpdateMfceditbrowseGame();
 	CComboBox m_ComboRiskGroup;
 	CComboBox m_ComboRoleName;
+	CComboBox m_ComboArea;
+	CComboBox m_ComboServer;
+	afx_msg void OnCbnSelchangeComboArea();
 };

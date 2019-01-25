@@ -215,9 +215,13 @@ void   KBCWait4IBE()
 	DWORD   dwRegVal=0; 
 	do 
 	{   
-		GetPortVal(0x64,&dwRegVal,1); 
+		bool flag = GetPortVal(KBC_KEY_CMD,&dwRegVal,1);
+		if(!flag){
+			LOG_DEBUG<<"GetPortVal failed "<< dwRegVal;
+		}
+		Sleep(100);
 	} 
-	while(dwRegVal   &   0x00000001); 
+	while(dwRegVal & 0x00000001); 
 } 
 
 void   MyKeyDownEx(long   vKeyCoad)       //Ä£ÄâÀ©Õ¹¼ü°´ÏÂ£¬²ÎÊývKeyCoadÊÇÀ©Õ¹¼üµÄÐéÄâÂë 
@@ -263,22 +267,27 @@ void   MyKeyDown(long   vKeyCoad)
 	if(SetPortVal(0x64,0xD2,1)==false)
 		LOG_DEBUG << "·¢ËÍ¼üÅÌÐ´ÈëÃüÁîÊ§°Ü! key code "<< vKeyCoad;//·¢ËÍ¼üÅÌÐ´ÈëÃüÁî 
 
+	LOG_DEBUG << "key down before input code" << vKeyCoad;
 	KBCWait4IBE();//µÈ´ý¼üÅÌ»º³åÇøÎª¿Õ   
 	if(SetPortVal(0x60,(ULONG)byScancode,1)==false)
 		LOG_DEBUG << "°´ÏÂ¼üÊ§°Ü! " << vKeyCoad;//Ð´Èë°´¼üÐÅÏ¢,°´ÏÂ¼ü 
+	LOG_DEBUG << "after input code" << vKeyCoad;
 } 
 
 
 void   MyKeyUp(long   vKeyCoad) 
 { 
+	LOG_DEBUG << "key up  key code "<< vKeyCoad;//·¢ËÍ¼üÅÌÐ´ÈëÃüÁî
 	long   byScancode   =   MapVirtualKey(vKeyCoad,0);   
 	KBCWait4IBE();//µÈ´ý¼üÅÌ»º³åÇøÎª¿Õ   
 	if(SetPortVal(0x64,0xD2,1)==false)
 		LOG_DEBUG << "·¢ËÍ¼üÅÌÐ´ÈëÃüÁîÊ§°Ü! ";//·¢ËÍ¼üÅÌÐ´ÈëÃüÁî 
 
+	LOG_DEBUG << "key up before input code" << vKeyCoad;
 	KBCWait4IBE();//µÈ´ý¼üÅÌ»º³åÇøÎª¿Õ   
 	if(SetPortVal(0x60,(ULONG)(byScancode   |   0x80),1)==false)
 		LOG_DEBUG << "ÊÍ·Å¼üÊ§°Ü! ";//Ð´Èë°´¼üÐÅÏ¢£¬ÊÍ·Å¼ü 
+	LOG_DEBUG << "key up after input code" << vKeyCoad;
 } 
 
 void CKeyMouMng::InputPassword(const char* szBuffer)
@@ -300,15 +309,15 @@ void CKeyMouMng::InputPassword(const char* szBuffer)
 			szChar -= 'a';
 			szChar += 0x41;
 		}
-		if ( szBuffer[i] >= '0' && szBuffer[i] <= '1')
+		else if ( szBuffer[i] >= '0' && szBuffer[i] <= '1')
 		{
 			szChar -= '0';
 			szChar += 0x30;
 		}
 		MyKeyDown(szChar); //°´ÏÂA¼ü
-		Sleep(500 + rand()%500);
+		Sleep(300 + rand()%100);
 		MyKeyUp(szChar);
-		Sleep(500 + rand()%500);
+		Sleep(300 + rand()%100);
 	}
 }
 
