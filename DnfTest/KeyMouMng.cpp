@@ -2,6 +2,7 @@
 #include "KeyMouMng.h"
 #include "WaitForEvent.h"
 #include "winio.h"
+#include "DD.h"
 
 //=============================按键模式============================
 //鼠标移动
@@ -290,7 +291,7 @@ void   MyKeyUp(long   vKeyCoad)
 	LOG_DEBUG << "key up after input code" << vKeyCoad;
 } 
 
-void CKeyMouMng::InputPassword(const char* szBuffer)
+void CKeyMouMng::InputPassword( char* szBuffer)
 {
 	HWND hLoginWnd = NULL;
 	hLoginWnd = GetLoginWnd();
@@ -301,23 +302,25 @@ void CKeyMouMng::InputPassword(const char* szBuffer)
 	AttachThreadInput(dwThread, GetCurrentThreadId(), TRUE);
 	
 	//HWND hFocus = GetFocus();
-	for(auto i(0); i < strlen(szBuffer); i++)
-	{
-		char szChar = szBuffer[i];
-		if ( szBuffer[i] >= 'a' && szBuffer[i] <= 'z')
-		{
-			szChar -= 'a';
-			szChar += 0x41;
-		}
-		else if ( szBuffer[i] >= '0' && szBuffer[i] <= '1')
-		{
-			szChar -= '0';
-			szChar += 0x30;
-		}
-		MyKeyDown(szChar); //按下A键
-		Sleep(300 + rand()%100);
-		MyKeyUp(szChar);
-		Sleep(300 + rand()%100);
-	}
+	//for(auto i(0); i < strlen(szBuffer); i++)
+	//{
+	//	char szChar = szBuffer[i];
+	//	if ( szBuffer[i] >= 'a' && szBuffer[i] <= 'z')
+	//	{
+	//		szChar -= 'a';
+	//		szChar += 0x41;
+	//	}
+	//	else if ( szBuffer[i] >= '0' && szBuffer[i] <= '1')
+	//	{
+	//		szChar -= '0';
+	//		szChar += 0x30;
+	//	}
+	//	MyKeyDown(szChar); //按下A键
+	//	Sleep(300 + rand()%100);
+	//	MyKeyUp(szChar);
+	//	Sleep(300 + rand()%100);
+	//}
+	dd.DD_str(szBuffer);
+
 }
 

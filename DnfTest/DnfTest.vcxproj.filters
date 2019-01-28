@@ -75,6 +75,9 @@
     <ClInclude Include="CommonStatic.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DD.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DnfTest.cpp">
@@ -108,6 +111,9 @@
       <Filter>CJsonObject</Filter>
     </ClCompile>
     <ClCompile Include="CommonStatic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DD.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

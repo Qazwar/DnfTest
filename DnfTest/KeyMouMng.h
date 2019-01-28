@@ -1,6 +1,7 @@
 #pragma once
 
 #include "singleton.h"
+#include "DD.h"
 
 //
 // Define the keyboard input data Flags.
@@ -63,7 +64,9 @@
 class CKeyMouMng : public Pattern::Singleton<CKeyMouMng>
 {
 public:
-	CKeyMouMng(void){};
+	CKeyMouMng(void){
+		int ret = dd.GetFunAddr(_T("DD85590.32.dll"));
+	};
 	~CKeyMouMng(){};
 public:
 	BOOL MouseMove(LONG dx, LONG dy, USHORT Flags = MOUSE_MOVE_ABSOLUTE);
@@ -78,6 +81,8 @@ public:
 	void MouseMoveInLoginWnd(int nX,int nY);
 	void InputCharByKeyBoard(const char* szBuffer);
 	void MouseMoveAndClickGameWnd(int nX,int nY);
-	void InputPassword(const char* szBuffer);
+	void InputPassword(char* szBuffer);
+public:
+	CDD dd ;  // DD ¿‡ 
  
 };

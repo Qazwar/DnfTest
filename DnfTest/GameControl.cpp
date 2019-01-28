@@ -20,6 +20,27 @@ CGameControl::~CGameControl(void)
 void CGameControl::ClickLoginInArea()
 {
 	CKeyMouMng::Ptr()->MouseMoveAndClick(828,496);  //点击编辑框
+	BOOL bFind = FALSE;
+	int nXtmp = 0,nYtmp = 0;
+	HWND hLoginWnd = GetLoginWnd();
+	if (hLoginWnd == NULL) 
+		return;	
+	while(true){
+		TCHAR ImagePath[MAX_PATH] = {0};
+		wsprintf(ImagePath, _T("%sMatchImage\\Game\\QQ.png"), g_ExePath);
+		bFind = ImageMatchFromHwnd(hLoginWnd,ImagePath,0.5,nXtmp,nYtmp,false);
+		if (bFind)
+		{
+			LOG_DEBUG<<"没有找到qq账号输入图片";
+			bFind = TRUE;
+			return;
+		}else
+		{
+			CKeyMouMng::Ptr()->MouseMoveAndClick(828,496);  //点击编辑框
+			bFind = FALSE;
+		}
+		Sleep(500);
+	}
 }
 
 void CGameControl::InputCodes()
@@ -28,7 +49,7 @@ void CGameControl::InputCodes()
 	{
 	Sleep(500);
 	}
-	Sleep(1000);
+	Sleep(3000);
 	ClickLoginInArea();
 	ClickAgreement();
 	Sleep(2000);
@@ -47,7 +68,7 @@ void CGameControl::InputCodes()
 	CKeyMouMng::Ptr()->KeyboardButtonEx(VK_TAB);
 	Sleep(1000);
 	//CKeyMouMng::Ptr()->MouseMoveAndClick(1092,373);  //点击编辑框
-	CKeyMouMng::Ptr()->InputPassword(account.password.c_str());
+	CKeyMouMng::Ptr()->InputPassword( const_cast<char*>(account.password.c_str()));
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClick(1044,482);  //点击登录
 	LOG_DEBUG<<"点击登录按钮";
@@ -55,25 +76,42 @@ void CGameControl::InputCodes()
 
 void CGameControl::CreateRole()
 {
+	LOG_DEBUG<<"开始创建角色";
 	while (!IsCanCreateRoles())
 	{
 		Sleep(500);
 	}
-	LOG_DEBUG<<"开始创建角色";
+	LOG_DEBUG<<"可以创建角色了";
+	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(468,823);  //点击创建角色
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(1416,645);  //创建角色第二步
 	Sleep(1000);
 	const auto& account = config_instance.accounts.at(this->m_Index);
+	LOG_DEBUG<<"【角色名字】"<<account.role_name.c_str();
 	CKeyMouMng::Ptr()->InputCharByKeyBoard(account.role_name.c_str());
-	LOG_DEBUG<<"【角色名字】 CreateRole name "<<account.role_name.c_str();
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(910,428);  //点击检测重复
+	LOG_DEBUG<<"点击检测重复 "<<account.role_name.c_str();
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(802,483); 
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(755,529); //点击确定
+	LOG_DEBUG<<"点击确定"<<account.role_name.c_str();
 	Sleep(1000);
-	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(872,535); //点击创建角色成功
+
+	int nXtmp = 0,nYtmp = 0;
+	HWND hGameWnd = GetGameWnd();
+	if (hGameWnd == NULL) 
+		return;	
+	TCHAR ImagePath[MAX_PATH] = {0};
+	wsprintf(ImagePath, _T("%sMatchImage\\Game\\Success.png"), g_ExePath);
+	auto bFind = ImageMatchFromHwnd(hGameWnd,ImagePath,0.5,nXtmp,nYtmp,false);
+	if (bFind)
+	{
+		LOG_DEBUG<<"成功 的坐标 "<<nXtmp<<" y "<< nYtmp;
+		CKeyMouMng::Ptr()->MouseMoveAndClick(nXtmp+140, nYtmp+115);  //点击编辑框
+	}
+	LOG_DEBUG<<"点击创建角色成功"<<account.role_name.c_str();
 }
 
 void CGameControl::EndGame()
@@ -96,7 +134,7 @@ bool CGameControl::IsCanCreateRoles()
 		return FALSE;
 
 	TCHAR ImagePath[MAX_PATH] = {0};
-	wsprintf(ImagePath, _T("%sMatchImage\\Game\\CreateRole.png"), g_ExePath);
+	wsprintf(ImagePath, _T("%sMatchImage\\Game\\GameStart.png"), g_ExePath);
 
 	bFind = ImageMatchFromHwnd(hGameWnd,ImagePath,0.5,nXtmp,nYtmp,false);
 	if (bFind)
@@ -168,12 +206,12 @@ BOOL CGameControl::ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSa
 {
 	BOOL bresMatched = FALSE;
 	LPBYTE   lpBits;
-	IplImage    *Img;
-	IplImage    *ImgGray;
-	IplImage    *Tpl;
-	IplImage    *TplGray;
-	IplImage    *matRes;
-	IplImage    *matchArea;
+	IplImage    *Img = NULL;
+	IplImage    *ImgGray = NULL;
+	IplImage    *Tpl = NULL;
+	IplImage    *TplGray = NULL;
+	IplImage    *matRes = NULL;
+	IplImage    *matchArea = NULL;
 	double min_val;
 	double max_val;
 	CvPoint min_loc;
@@ -264,6 +302,7 @@ BOOL CGameControl::ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSa
 		int iheight = Img->height - Tpl->height + 1;
 		//创建匹配结果图
 		matRes=cvCreateImage(cvSize(iwidth, iheight),IPL_DEPTH_32F, 1);  
+		LOG_DEBUG<<"matRes:"<<matRes;
 		//找到匹配位置
 		cvMatchTemplate(ImgGray,TplGray,matRes,CV_TM_CCOEFF_NORMED);
 		//找到最佳匹配位置 
@@ -297,12 +336,25 @@ BOOL CGameControl::ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSa
 
 		//-----------------------------
 _Error:
-		cvReleaseImage(&matRes);
-		cvReleaseImage(&matchArea);
-		cvReleaseImage(&Img);
-		cvReleaseImage(&Tpl);
-		cvReleaseImage(&ImgGray);
-		cvReleaseImage(&TplGray);
+		if (matRes)
+		{
+			cvReleaseImage(&matRes);
+		}
+		if(matchArea){
+			cvReleaseImage(&matchArea);
+		}
+		if(Img){
+			cvReleaseImage(&Img);
+		}
+		if(Tpl){
+			cvReleaseImage(&Tpl);
+		}
+		if(ImgGray){
+			cvReleaseImage(&ImgGray);
+		}
+		if(TplGray){
+			cvReleaseImage(&TplGray);
+		}
 
 		::SelectObject(hMemDC, hOldBitmap);  
 		::DeleteObject(hBitmap);  
