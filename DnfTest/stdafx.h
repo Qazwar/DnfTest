@@ -67,6 +67,7 @@ using namespace std;
 #include <vector>
 #include "MyLog.h"
 #include "CommonStatic.h"
+#include "Constants.h"
 
 HWND GetLoginWnd();
 HWND GetGameWnd();

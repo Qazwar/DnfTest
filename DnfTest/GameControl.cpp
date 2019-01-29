@@ -6,11 +6,28 @@
 char g_ExePath[MAX_PATH] = {0};
 
 
-CGameControl::CGameControl(void):
-m_Index(0)
+CGameControl::CGameControl(HWND hShow):
+m_Index(0), m_hShow(hShow)
 {
 	GetPath(g_ExePath);
 }
+bool CGameControl::FindCurrentAccountIndex()
+{
+	//找到第一个没有创建角色的账号
+	const auto& accounts = config_instance.accounts;
+	for(auto i(m_Index); i <= accounts.size(); i++)
+	{
+		if(i==accounts.size()||accounts.at(i).status == STATUS_INIT){
+			m_Index = i;
+			break;
+		}
+	}
+	if(m_Index == accounts.size()){
+		return false;
+	}
+	return true;
+}
+
 
 
 CGameControl::~CGameControl(void)
@@ -20,39 +37,55 @@ CGameControl::~CGameControl(void)
 void CGameControl::ClickLoginInArea()
 {
 	CKeyMouMng::Ptr()->MouseMoveAndClick(828,496);  //点击编辑框
-	BOOL bFind = FALSE;
-	int nXtmp = 0,nYtmp = 0;
-	HWND hLoginWnd = GetLoginWnd();
-	if (hLoginWnd == NULL) 
-		return;	
 	while(true){
-		TCHAR ImagePath[MAX_PATH] = {0};
-		wsprintf(ImagePath, _T("%sMatchImage\\Game\\QQ.png"), g_ExePath);
-		bFind = ImageMatchFromHwnd(hLoginWnd,ImagePath,0.5,nXtmp,nYtmp,false);
-		if (bFind)
-		{
-			LOG_DEBUG<<"没有找到qq账号输入图片";
-			bFind = TRUE;
-			return;
-		}else
-		{
-			CKeyMouMng::Ptr()->MouseMoveAndClick(828,496);  //点击编辑框
-			bFind = FALSE;
+		if(FindImageInLoginWnd("QQ.png")){
+			break;
 		}
 		Sleep(500);
+		CKeyMouMng::Ptr()->MouseMoveAndClick(828,496);  //点击编辑框
 	}
+}
+
+void CGameControl::StartGame()
+{
+	STARTUPINFOA StartupInfo;
+	PROCESS_INFORMATION ProcessInformation;
+	ZeroMemory(&StartupInfo, sizeof(StartupInfo));
+	ZeroMemory(&ProcessInformation, sizeof(ProcessInformation));
+	//StartupInfo.dwFlags = STARTF_USESHOWWINDOW;//指定wShowWindow成员有效
+	StartupInfo.wShowWindow = TRUE;//此成员设为TRUE的话则显示新建进程的主窗口
+	CreateProcessA((config_instance.game_path+"\\Client.exe").c_str(),
+		NULL,
+		NULL, NULL,
+		0,
+		NULL,
+		NULL,
+		config_instance.game_path.c_str(),
+		&StartupInfo,
+		&ProcessInformation);
+	if(ProcessInformation.hProcess==NULL)
+	{
+		AfxMessageBox(_T("启动游戏失败"), MB_OK);
+		return;
+	}
+	SendMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_START, NULL);
 }
 
 void CGameControl::InputCodes()
 {
-	while (!IsCanLogin())
+	while (!FindImageInLoginWnd("Login.png"))
 	{
-	Sleep(500);
+		Sleep(500);
 	}
-	Sleep(3000);
+	Sleep(000);
 	ClickLoginInArea();
+	SendMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_LOGIN, NULL);
+	while (!FindImageInLoginWnd("LoginByCode.png"))
+	{
+		Sleep(500);
+	}
 	ClickAgreement();
-	Sleep(2000);
+	Sleep(500);
 	CKeyMouMng::Ptr()->MouseMoveAndClick(1092,328);  //点击编辑框
 	Sleep(200);
 	for (auto i = 0; i<20; i++)
@@ -81,22 +114,38 @@ void CGameControl::CreateRole()
 	{
 		Sleep(500);
 	}
+	SendMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE, NULL);
 	LOG_DEBUG<<"可以创建角色了";
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(468,823);  //点击创建角色
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(1416,645);  //创建角色第二步
 	Sleep(1000);
-	const auto& account = config_instance.accounts.at(this->m_Index);
-	LOG_DEBUG<<"【角色名字】"<<account.role_name.c_str();
-	CKeyMouMng::Ptr()->InputCharByKeyBoard(account.role_name.c_str());
-	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(910,428);  //点击检测重复
-	LOG_DEBUG<<"点击检测重复 "<<account.role_name.c_str();
-	Sleep(1000);
-	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(802,483); 
-	Sleep(1000);
+	while(!FindImageInGameWnd("NameCheckPass.png", 0.99, false))
+	{
+		for (auto i = 0; i<12; i++)
+		{	
+			WAIT_STOP_RETURN(10);
+			CKeyMouMng::Ptr()->DirKeyDown(VK_BACK);
+			Sleep(100);
+			CKeyMouMng::Ptr()->DirKeyUp(VK_BACK);
+		}
+		const auto name = CreateName();
+		auto& account = config_instance.accounts.at(this->m_Index);
+		account.role_name = name;
+		account.status = STATUS_SUCCESS;
+		config_instance.SaveData();
+		LOG_DEBUG<<"【角色名字】"<<name.c_str();
+		CKeyMouMng::Ptr()->InputCharByKeyBoard(name.c_str());
+		CKeyMouMng::Ptr()->KeyboardButtonEx(VK_RETURN);
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(910,428);  //点击检测重复
+		LOG_DEBUG<<"点击检测重复 "<<name.c_str();
+		Sleep(1000);
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(802,483);//点击检测结果
+		Sleep(1000);
+	}
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(755,529); //点击确定
-	LOG_DEBUG<<"点击确定"<<account.role_name.c_str();
+	LOG_DEBUG<<"点击确定";
 	Sleep(1000);
 
 	int nXtmp = 0,nYtmp = 0;
@@ -109,9 +158,10 @@ void CGameControl::CreateRole()
 	if (bFind)
 	{
 		LOG_DEBUG<<"成功 的坐标 "<<nXtmp<<" y "<< nYtmp;
-		CKeyMouMng::Ptr()->MouseMoveAndClick(nXtmp+140, nYtmp+115);  //点击编辑框
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(nXtmp+140, nYtmp+115);  //点击编辑框
 	}
-	LOG_DEBUG<<"点击创建角色成功"<<account.role_name.c_str();
+	LOG_DEBUG<<"点击创建角色成功";
+	SendMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE_DONE, NULL);
 }
 
 void CGameControl::EndGame()
@@ -125,84 +175,21 @@ void CGameControl::SetAccountIndex(const int& index)
 	this->m_Index = index;
 }
 
-bool CGameControl::IsCanCreateRoles()
+BOOL CGameControl::IsCanCreateRoles()
 {
-	BOOL bFind = FALSE;
-	int nXtmp = 0,nYtmp = 0;
-	HWND hGameWnd = GetGameWnd();
-	if (hGameWnd == NULL) 
-		return FALSE;
-
-	TCHAR ImagePath[MAX_PATH] = {0};
-	wsprintf(ImagePath, _T("%sMatchImage\\Game\\GameStart.png"), g_ExePath);
-
-	bFind = ImageMatchFromHwnd(hGameWnd,ImagePath,0.5,nXtmp,nYtmp,false);
-	if (bFind)
-	{
-		LOG_DEBUG<<"【可以创建角色了】 CreateRole 图片 X:"<<nXtmp<<" Y:",nYtmp;
-		bFind = TRUE;
-	}else
-	{
-		//_DbgPrint("没找到CanEnterGame图片\n");
-		bFind = FALSE;
-	}	
-
-	return bFind;
+	return FindImageInGameWnd("GameStart.png");
 }
 
 void CGameControl::ClickAgreement()
 {
-	BOOL bFind = FALSE;
-	int nXtmp = 0,nYtmp = 0;
-	HWND hLoginWnd = GetLoginWnd();
-	if (hLoginWnd == NULL) 
-		return;
-
-	TCHAR ImagePath[MAX_PATH] = {0};
-	wsprintf(ImagePath, _T("%sMatchImage\\Game\\Agreement.png"), g_ExePath);
-
-	bFind = ImageMatchFromHwnd(hLoginWnd,ImagePath,0.5,nXtmp,nYtmp,false);
-	if (bFind)
-	{
-		LOG_DEBUG<<"【同意协议没有被勾选】 图片 X:"<<nXtmp<<" Y:"<<nYtmp;
-		bFind = TRUE;
-	}else
-	{
-		//_DbgPrint("没找到CanEnterGame图片\n");
-		bFind = FALSE;
-	}
-	if(bFind){
+	if(FindImageInGameWnd("Agreement.png")){
 		CKeyMouMng::Ptr()->MouseMoveAndClick(948,413); //点击创建角色成功
 	}
 	Sleep(100);
 }
 
-bool CGameControl::IsCanLogin()
-{
-	BOOL bFind = FALSE;
-	int nXtmp = 0,nYtmp = 0;
-	HWND hLoginWnd = GetLoginWnd();
-	if (hLoginWnd == NULL) 
-		return FALSE;
 
-	TCHAR ImagePath[MAX_PATH] = {0};
-	wsprintf(ImagePath, _T("%sMatchImage\\Game\\Login.png"), g_ExePath);
-
-	bFind = ImageMatchFromHwnd(hLoginWnd,ImagePath,0.5,nXtmp,nYtmp,false);
-	if (bFind)
-	{
-		LOG_DEBUG<<"【可以进入登录了】 Login 图片 X:"<<nXtmp<<" Y:"<<nYtmp;
-		bFind = TRUE;
-	}else
-	{
-		//_DbgPrint("没找到CanEnterGame图片\n");
-		bFind = FALSE;
-	}
-
-	return bFind;
-}
-
-BOOL CGameControl::ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSame, OUT int& nX,OUT int& nY,bool bSave)
+BOOL CGameControl::ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSame, OUT int& nX,OUT int& nY,bool bSave, bool bGray)
 {
 	BOOL bresMatched = FALSE;
 	LPBYTE   lpBits;
@@ -212,6 +199,8 @@ BOOL CGameControl::ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSa
 	IplImage    *TplGray = NULL;
 	IplImage    *matRes = NULL;
 	IplImage    *matchArea = NULL;
+	IplImage    *ImgCompare = NULL;
+	IplImage    *TplCompare = NULL;
 	double min_val;
 	double max_val;
 	CvPoint min_loc;
@@ -304,21 +293,27 @@ BOOL CGameControl::ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSa
 		matRes=cvCreateImage(cvSize(iwidth, iheight),IPL_DEPTH_32F, 1);  
 		LOG_DEBUG<<"matRes:"<<matRes;
 		//找到匹配位置
-		cvMatchTemplate(ImgGray,TplGray,matRes,CV_TM_CCOEFF_NORMED);
+		if(bGray){
+			ImgCompare = ImgGray;
+			TplCompare = TplGray;
+		}else{
+			ImgCompare = Img;
+			TplCompare = Tpl;
+		}
+		cvMatchTemplate(ImgCompare,TplCompare,matRes,CV_TM_CCOEFF_NORMED);
 		//找到最佳匹配位置 
-		cvMinMaxLoc(matRes,&min_val,&max_val,&min_loc,&max_loc,NULL); 
-		LOG_DEBUG<<"MaxVal:"<<max_val;
+		cvMinMaxLoc(matRes,&min_val,&max_val,&min_loc,&max_loc,NULL);
 		//_DbgPrint("匹配位置X = %d,Y = %d",max_loc.x,max_loc.y);
 
-		cvSetImageROI(ImgGray,cvRect(max_loc.x,max_loc.y,TplGray->width,TplGray->height));
-		matchArea = cvCreateImage(cvGetSize(TplGray),8,1);
-		cvCopy(ImgGray,matchArea,0);
-		cvResetImageROI(ImgGray);
+		/*cvSetImageROI(ImgCompare,cvRect(max_loc.x,max_loc.y,TplCompare->width,TplCompare->height));
+		matchArea = cvCreateImage(cvGetSize(TplCompare),8,1);
+		cvCopy(ImgCompare,matchArea,0);
+		cvResetImageROI(ImgCompare);
 
 		if (bSave)
 		{
-			cvSaveImage("E:\\tmpfile\\matchedArea.png",matchArea);
-		}
+		cvSaveImage("E:\\tmpfile\\matchedArea.png",matchArea);
+		}*/
 
 		bresMatched =(fSame <= max_val)?TRUE:FALSE;
 
@@ -434,4 +429,42 @@ IplImage* CGameControl::HBitmapToLpl(HBITMAP hBmp)
 		LocalFree(lpMsgBuf);
 		return NULL;
 	}
+}
+
+BOOL CGameControl::FindImageInGameWnd(const string& image, float fSame, bool bGray)
+{
+	int nXtmp = 0,nYtmp = 0;
+	HWND hGameWnd = GetGameWnd();
+	if (hGameWnd == NULL) 
+		return FALSE;
+	TCHAR ImagePath[MAX_PATH] = {0};
+	wsprintf(ImagePath, _T("%sMatchImage\\Game\\%s"), g_ExePath, image.c_str());
+	auto bFind = ImageMatchFromHwnd(hGameWnd,ImagePath,fSame,nXtmp,nYtmp,false, bGray);
+	LOG_DEBUG<<"查找图片"<<image.c_str()<< " 结果 "<<bFind<<" X "<< nXtmp <<" y "<< nYtmp;
+	return bFind;
+}
+
+BOOL CGameControl::FindImageInLoginWnd(const string& image)
+{
+	int nXtmp = 0,nYtmp = 0;
+	HWND hLogin = GetLoginWnd();
+	if (hLogin == NULL) 
+		return FALSE;
+	TCHAR ImagePath[MAX_PATH] = {0};
+	wsprintf(ImagePath, _T("%sMatchImage\\Game\\%s"), g_ExePath, image.c_str());
+	auto bFind = ImageMatchFromHwnd(hLogin,ImagePath,0.5,nXtmp,nYtmp,false);
+	LOG_DEBUG<<"查找图片"<<image.c_str()<< " 结果 "<<bFind<<" X "<< nXtmp <<" y "<< nYtmp;
+	return bFind;
+}
+
+string CGameControl::CreateName()
+{
+	//随机选取12个英文字母
+	string Name;
+	srand((int)time(0));
+	for(int i(0); i < 12; i++){
+		char ch = rand()%26+'a';
+		Name.push_back(ch);
+	}
+	return Name;
 }

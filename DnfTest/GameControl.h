@@ -9,21 +9,26 @@ using namespace cv;
 class CGameControl
 {
 public:
-	CGameControl(void);
+	CGameControl(HWND hShow);
 	~CGameControl(void);
 	void ClickLoginInArea();
+	void StartGame();
 	void InputCodes();
 	void CreateRole();
 	void EndGame();
 	void SetAccountIndex(const int& index);
+	bool FindCurrentAccountIndex();
 private:
-	bool IsCanCreateRoles();
+	BOOL IsCanCreateRoles();
 	void ClickAgreement();
-	bool IsCanLogin();
 	BOOL ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSame,
-		OUT int& nX,OUT int& nY,bool bSave);
+		OUT int& nX,OUT int& nY,bool bSave, bool bGray = true /*是否用灰度图比较*/);
 	IplImage* HBitmapToLpl(HBITMAP hBmp);
+	BOOL FindImageInGameWnd(const string& image, float fSame = 0.7, bool bGray = true);
+	BOOL FindImageInLoginWnd(const string& image);
+	string CreateName();
 private:
+	HWND m_hShow;
 	int	m_Index;
 };
 

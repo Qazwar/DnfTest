@@ -7,14 +7,14 @@
 #include "afxeditbrowsectrl.h"
 #include "afxwin.h"
 
-
+class CGameControl;
 // CDnfTestDlg 对话框
 class CDnfTestDlg : public CDialogEx
 {
 // 构造
 public:
 	CDnfTestDlg(CWnd* pParent = NULL);	// 标准构造函数
-
+	~CDnfTestDlg();
 // 对话框数据
 	enum { IDD = IDD_DNFTEST_DIALOG };
 
@@ -34,15 +34,16 @@ protected:
 public:
 	afx_msg void OnBnClickedButtonStart();
 private:
-	static void StartProcess(void*);
-	static void StartInputCodes(void*);
-	static void StartCreateRole(void*);
+	static void StartProcess(void* param);
+	static void StartInputCodes(void*param);
+	static void StartCreateRole(void*param);
 	void InitData();
+	LRESULT OnUpdateGameStatus(WPARAM wParam, LPARAM lParam);
 public:
 	afx_msg void OnBnClickedButtonCreateRole();
 	afx_msg void OnBnClickedButton1();
 	CListCtrl m_ListAccount;
-	CMFCEditBrowseCtrl m_EditGame;
+	CMFCEditBrowseCtrl m_EditGameDir;
 	afx_msg void OnEnChangeMfceditbrowseGame();
 	afx_msg void OnEnUpdateMfceditbrowseGame();
 	CComboBox m_ComboRiskGroup;
@@ -50,4 +51,8 @@ public:
 	CComboBox m_ComboArea;
 	CComboBox m_ComboServer;
 	afx_msg void OnCbnSelchangeComboArea();
+	CEdit m_EditGameStatus;
+private:
+	CGameControl *m_gameControl;
+	void onGameStatusChange(const GameStatus& status);
 };

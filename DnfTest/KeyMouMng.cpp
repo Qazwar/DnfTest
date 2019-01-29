@@ -95,20 +95,6 @@ BOOL CKeyMouMng::KeyboardButton(BYTE VirtualKey, BYTE Flags)
 
 BOOL CKeyMouMng::KeyboardButtonEx(BYTE VirtualKey, int ControlVirtualKey)
 {
-	//srand((unsigned) time(0));
-	//if (ControlVirtualKey != KEY_BLANK)
-	//{
-	//	::keybd_event(ControlVirtualKey,::MapVirtualKey(VirtualKey,0), 0, 0);
-	//	Sleep(20 + rand()%50);
-	//}
-	//::keybd_event(VirtualKey, ::MapVirtualKey(VirtualKey,2), 0, 0);
-	//Sleep(20 + rand()%150);
-	//::keybd_event(VirtualKey, ::MapVirtualKey(VirtualKey,2), KEYEVENTF_KEYUP, 0);
-	//Sleep(20 + rand()%150);
-	//if (ControlVirtualKey != KEY_BLANK)
-	//{
-	//	::keybd_event(ControlVirtualKey, ::MapVirtualKey(VirtualKey,0), KEYEVENTF_KEYUP, 0);
-	//}
 	INPUT input[2];
 	memset(input, 0, sizeof(input));
 
@@ -134,11 +120,6 @@ BOOL CKeyMouMng::KeyboardButtonEx(BYTE VirtualKey, int ControlVirtualKey)
 		LOG_DEBUG<<"ÊäÈëÃÜÂë·µ»ØÖµ:"<<ret<<",´íÎó: ", GetLastError();
 	}
 
-	/*HWND hLoginWnd = NULL;
-	hLoginWnd = GetLoginWnd();
-	if (hLoginWnd == NULL) 
-	return TRUE;
-	PostMessage( hLoginWnd, WM_CHAR,  VirtualKey, 0 );*/
 	return TRUE;
 }
 

@@ -193,6 +193,7 @@
     <ClInclude Include="CommonStatic.h" />
     <ClInclude Include="Common\singleton.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="DD.h" />
     <ClInclude Include="DnfTest.h" />
     <ClInclude Include="DnfTestDlg.h" />

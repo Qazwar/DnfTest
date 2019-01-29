@@ -21,20 +21,29 @@
 
 
 CDnfTestDlg::CDnfTestDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CDnfTestDlg::IDD, pParent)
+	: CDialogEx(CDnfTestDlg::IDD, pParent), m_gameControl(NULL)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+}
+
+CDnfTestDlg::~CDnfTestDlg()
+{
+	if(m_gameControl){
+		delete m_gameControl;
+		m_gameControl = NULL;
+	}
 }
 
 void CDnfTestDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST_ACCOUNT, m_ListAccount);
-	DDX_Control(pDX, IDC_MFCEDITBROWSE_GAME, m_EditGame);
+	DDX_Control(pDX, IDC_MFCEDITBROWSE_GAME, m_EditGameDir);
 	DDX_Control(pDX, IDC_COMBO_RISK_GROUP, m_ComboRiskGroup);
 	DDX_Control(pDX, IDC_COMBO_ROLE_NAME, m_ComboRoleName);
 	DDX_Control(pDX, IDC_COMBO_AREA, m_ComboArea);
 	DDX_Control(pDX, IDC_COMBO_SERVER, m_ComboServer);
+	DDX_Control(pDX, IDC_EDIT_GAME_STATUS, m_EditGameStatus);
 }
 
 BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
@@ -46,6 +55,7 @@ BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
 	ON_EN_CHANGE(IDC_MFCEDITBROWSE_GAME, &CDnfTestDlg::OnEnChangeMfceditbrowseGame)
 	ON_EN_UPDATE(IDC_MFCEDITBROWSE_GAME, &CDnfTestDlg::OnEnUpdateMfceditbrowseGame)
 	ON_CBN_SELCHANGE(IDC_COMBO_AREA, &CDnfTestDlg::OnCbnSelchangeComboArea)
+	ON_MESSAGE(WM_UPDATE_GAME_STATUS, &CDnfTestDlg::OnUpdateGameStatus)
 END_MESSAGE_MAP()
 
 
@@ -63,6 +73,7 @@ BOOL CDnfTestDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	//初始化WinIo库
 	InitData();
+	m_gameControl = new CGameControl(this->GetSafeHwnd());
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -106,69 +117,50 @@ HCURSOR CDnfTestDlg::OnQueryDragIcon()
 
 void CDnfTestDlg::OnBnClickedButtonStart()
 {
-	_beginthread(CDnfTestDlg::StartProcess, NULL, NULL);
+	_beginthread(CDnfTestDlg::StartProcess, NULL, this);
 }
 
-void CDnfTestDlg::StartProcess(void*)
+void CDnfTestDlg::StartProcess(void* param)
 {
-	// TODO: 在此添加控件通知处理程序代码
-	STARTUPINFOA StartupInfo;
-	PROCESS_INFORMATION ProcessInformation;
-		ZeroMemory(&StartupInfo, sizeof(StartupInfo));
-	ZeroMemory(&ProcessInformation, sizeof(ProcessInformation));
-
-	//StartupInfo.dwFlags = STARTF_USESHOWWINDOW;//指定wShowWindow成员有效
-	StartupInfo.wShowWindow = TRUE;//此成员设为TRUE的话则显示新建进程的主窗口
-	CreateProcessA((config_instance.game_path+"\\Client.exe").c_str(),
-		NULL,
-		NULL, NULL,
-		0,
-		NULL,
-		NULL,
-		config_instance.game_path.c_str(),
-		&StartupInfo,
-		&ProcessInformation);
-	if(ProcessInformation.hProcess==NULL)
-	{
-		AfxMessageBox(_T("启动游戏失败"), MB_OK);
-		return;
+	CDnfTestDlg*pThis = (CDnfTestDlg*)param;
+	// TODO: 在此添加控件通知处理程序代码	
+	while(pThis->m_gameControl->FindCurrentAccountIndex()){
+		pThis->m_gameControl->StartGame();
+		pThis->m_gameControl->InputCodes();
+		pThis->m_gameControl->CreateRole();
+		pThis->m_gameControl->EndGame();
 	}
-	CGameControl gameControl;
-	gameControl.InputCodes();
-	gameControl.CreateRole();
-	gameControl.EndGame();
+	pThis->onGameStatusChange(GAME_ALL_ACCOUNT_DONE);
 }
 
 
-void CDnfTestDlg::StartInputCodes(void*)
+void CDnfTestDlg::StartInputCodes(void*param)
 {
-	CGameControl gameControl;
-	gameControl.InputCodes();
+	CDnfTestDlg*pThis = (CDnfTestDlg*)param;
+	pThis->m_gameControl->InputCodes();
 }
 
-void CDnfTestDlg::StartCreateRole(void*)
+void CDnfTestDlg::StartCreateRole(void*param)
 {
-	CGameControl gameControl;
-	gameControl.CreateRole();
-	gameControl.EndGame();
+	CDnfTestDlg*pThis = (CDnfTestDlg*)param;
+	pThis->m_gameControl->CreateRole();
+	pThis->m_gameControl->EndGame();
 }
 
 void CDnfTestDlg::InitData()
 {
-	m_EditGame.SetWindowText(common::stringToCString(config_instance.game_path));
+	m_EditGameDir.SetWindowText(common::stringToCString(config_instance.game_path));
 	m_ListAccount.InsertColumn(0,"序列号",LVCFMT_LEFT, 50);
-	m_ListAccount.InsertColumn(1,"状态", LVCFMT_LEFT, 200);
+	m_ListAccount.InsertColumn(1,"角色状态", LVCFMT_LEFT, 100);
 	m_ListAccount.InsertColumn(2,"qq号码", LVCFMT_LEFT, 200);
 	m_ListAccount.InsertColumn(3,"密码",LVCFMT_LEFT, 200);
-	m_ListAccount.InsertColumn(4,"角色名", LVCFMT_LEFT, 200);
 	for(auto i(0); i < config_instance.accounts.size(); i++)
 	{
 		 const auto& account = config_instance.accounts.at(i);
-		 m_ListAccount.InsertItem(0, common::IntToCString(i+1));
-		 m_ListAccount.SetItemText(i, 1, _T("启动中"));
+		 m_ListAccount.InsertItem(i, common::IntToCString(i+1));
+		 m_ListAccount.SetItemText(i, 1, _T("未创建"));
 		 m_ListAccount.SetItemText(i, 2, common::stringToCString(account.qq));
 		 m_ListAccount.SetItemText(i, 3, common::stringToCString(account.password));
-		 m_ListAccount.SetItemText(i, 4, common::stringToCString(account.role_name));
 	}
 	auto roleNameArray = common::SplitString(config_instance.role_name, ';');
 	for (auto i(0); i < roleNameArray->GetSize(); i++)
@@ -199,17 +191,24 @@ void CDnfTestDlg::InitData()
 	m_ComboArea.SetCurSel(0);
 }
 
+LRESULT CDnfTestDlg::OnUpdateGameStatus(WPARAM wParam, LPARAM lParam)
+{
+	GameStatus status = (GameStatus)wParam;
+	onGameStatusChange(status);
+	return 0;
+}
+
 void CDnfTestDlg::OnBnClickedButtonCreateRole()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	_beginthread(CDnfTestDlg::StartCreateRole, NULL, NULL);
+	_beginthread(CDnfTestDlg::StartCreateRole, NULL, this);
 }
 
 
 void CDnfTestDlg::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	_beginthread(CDnfTestDlg::StartInputCodes, NULL, NULL);
+	_beginthread(CDnfTestDlg::StartInputCodes, NULL, this);
 }
 
 
@@ -224,7 +223,7 @@ void CDnfTestDlg::OnEnChangeMfceditbrowseGame()
 
 	// TODO:  在此添加控件通知处理程序代码
 	CString Text;
-	m_EditGame.GetWindowText(Text);
+	m_EditGameDir.GetWindowText(Text);
 	if(Text.Compare(common::stringToCString(config_instance.game_path))!=0){
 		config_instance.game_path = common::CStringTostring(Text);
 		config_instance.SaveData();
@@ -255,4 +254,24 @@ void CDnfTestDlg::OnCbnSelchangeComboArea()
 		m_ComboServer.AddString(common::stringToCString(list_server.at(i)));
 	}
 	m_ComboServer.SetCurSel(0);
+}
+
+void CDnfTestDlg::onGameStatusChange(const GameStatus& status)
+{
+	if (status == GAME_START)
+	{
+		m_EditGameStatus.SetWindowText(_T("游戏启动中"));
+	}else if (status == GAME_LOGIN)
+	{
+		m_EditGameStatus.SetWindowText(_T("游戏登录中"));
+	}else if (status == GAME_CREATE_ROLE)
+	{
+		m_EditGameStatus.SetWindowText(_T("创建角色"));
+	}else if (status == GAME_CREATE_ROLE_DONE)
+	{
+		m_EditGameStatus.SetWindowText(_T("创建角色完成"));
+	}else if (status == GAME_ALL_ACCOUNT_DONE)
+	{
+		m_EditGameStatus.SetWindowText(_T("所有账号创建完成"));
+	}
 }
