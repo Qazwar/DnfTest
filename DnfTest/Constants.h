@@ -11,6 +11,7 @@ enum GameStatus{
 	GAME_LOGIN,//游戏登录
 	GAME_CREATE_ROLE,//创建角色
 	GAME_CREATE_ROLE_DONE,//创建角色完成
-	GAME_ALL_ACCOUNT_DONE//账户都已经创建角色
+	GAME_ALL_ACCOUNT_DONE,//账户都已经创建角色
+	GAME_STOP//停止游戏
 };
 #define WM_UPDATE_GAME_STATUS (WM_USER+1)

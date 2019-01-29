@@ -55,4 +55,8 @@ public:
 private:
 	CGameControl *m_gameControl;
 	void onGameStatusChange(const GameStatus& status);
+public:
+	CButton m_ButtonStart;
+	afx_msg void OnBnClickedButtonStop();
+	CButton m_ButtonStop;
 };

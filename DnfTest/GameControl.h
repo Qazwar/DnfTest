@@ -18,6 +18,7 @@ public:
 	void EndGame();
 	void SetAccountIndex(const int& index);
 	bool FindCurrentAccountIndex();
+	void Stop();
 private:
 	BOOL IsCanCreateRoles();
 	void ClickAgreement();
@@ -26,9 +27,10 @@ private:
 	IplImage* HBitmapToLpl(HBITMAP hBmp);
 	BOOL FindImageInGameWnd(const string& image, float fSame = 0.7, bool bGray = true);
 	BOOL FindImageInLoginWnd(const string& image);
-	string CreateName();
+	string CreateName(const unsigned int & count);
 private:
 	HWND m_hShow;
 	int	m_Index;
+	bool m_Stop;
 };
 

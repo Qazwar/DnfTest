@@ -44,6 +44,8 @@ void CDnfTestDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_AREA, m_ComboArea);
 	DDX_Control(pDX, IDC_COMBO_SERVER, m_ComboServer);
 	DDX_Control(pDX, IDC_EDIT_GAME_STATUS, m_EditGameStatus);
+	DDX_Control(pDX, IDC_BUTTON_START, m_ButtonStart);
+	DDX_Control(pDX, IDC_BUTTON_STOP, m_ButtonStop);
 }
 
 BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
@@ -56,6 +58,7 @@ BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
 	ON_EN_UPDATE(IDC_MFCEDITBROWSE_GAME, &CDnfTestDlg::OnEnUpdateMfceditbrowseGame)
 	ON_CBN_SELCHANGE(IDC_COMBO_AREA, &CDnfTestDlg::OnCbnSelchangeComboArea)
 	ON_MESSAGE(WM_UPDATE_GAME_STATUS, &CDnfTestDlg::OnUpdateGameStatus)
+	ON_BN_CLICKED(IDC_BUTTON_STOP, &CDnfTestDlg::OnBnClickedButtonStop)
 END_MESSAGE_MAP()
 
 
@@ -123,6 +126,7 @@ void CDnfTestDlg::OnBnClickedButtonStart()
 void CDnfTestDlg::StartProcess(void* param)
 {
 	CDnfTestDlg*pThis = (CDnfTestDlg*)param;
+	pThis->m_ButtonStart.EnableWindow(FALSE);
 	// TODO: 在此添加控件通知处理程序代码	
 	while(pThis->m_gameControl->FindCurrentAccountIndex()){
 		pThis->m_gameControl->StartGame();
@@ -131,6 +135,7 @@ void CDnfTestDlg::StartProcess(void* param)
 		pThis->m_gameControl->EndGame();
 	}
 	pThis->onGameStatusChange(GAME_ALL_ACCOUNT_DONE);
+	pThis->m_ButtonStart.EnableWindow(TRUE);
 }
 
 
@@ -273,5 +278,15 @@ void CDnfTestDlg::onGameStatusChange(const GameStatus& status)
 	}else if (status == GAME_ALL_ACCOUNT_DONE)
 	{
 		m_EditGameStatus.SetWindowText(_T("所有账号创建完成"));
+	}else if (status == GAME_STOP)
+	{
+		m_EditGameStatus.SetWindowText(_T("游戏结束"));
 	}
+}
+
+
+void CDnfTestDlg::OnBnClickedButtonStop()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_gameControl->Stop();
 }

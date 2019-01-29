@@ -7,12 +7,15 @@ char g_ExePath[MAX_PATH] = {0};
 
 
 CGameControl::CGameControl(HWND hShow):
-m_Index(0), m_hShow(hShow)
+m_Index(0), m_hShow(hShow),m_Stop(false)
 {
 	GetPath(g_ExePath);
 }
 bool CGameControl::FindCurrentAccountIndex()
 {
+	if(m_Stop){
+		return false;
+	}
 	//找到第一个没有创建角色的账号
 	const auto& accounts = config_instance.accounts;
 	for(auto i(m_Index); i <= accounts.size(); i++)
@@ -29,6 +32,11 @@ bool CGameControl::FindCurrentAccountIndex()
 }
 
 
+
+void CGameControl::Stop()
+{
+	m_Stop = true;
+}
 
 CGameControl::~CGameControl(void)
 {
@@ -109,10 +117,24 @@ void CGameControl::InputCodes()
 
 void CGameControl::CreateRole()
 {
+
 	LOG_DEBUG<<"开始创建角色";
 	while (!IsCanCreateRoles())
 	{
 		Sleep(500);
+	}
+	LOG_DEBUG<<"是否需要输入冒险团";
+	if (FindImageInGameWnd("RiskGroup.png"))
+	{
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(627,432);  //点击冒险团编辑框
+		const auto groupName = CreateName(16);
+		LOG_DEBUG<<"【冒险团名字】"<<groupName.c_str();
+		CKeyMouMng::Ptr()->InputCharByKeyBoard(groupName.c_str());
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(519,642);  //点击设置
+		Sleep(500);
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(762,544);  //点击确定
+		Sleep(100);
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(801,412);  //点击已经设置冒险团名称
 	}
 	SendMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE, NULL);
 	LOG_DEBUG<<"可以创建角色了";
@@ -130,7 +152,7 @@ void CGameControl::CreateRole()
 			Sleep(100);
 			CKeyMouMng::Ptr()->DirKeyUp(VK_BACK);
 		}
-		const auto name = CreateName();
+		const auto name = CreateName(12);
 		auto& account = config_instance.accounts.at(this->m_Index);
 		account.role_name = name;
 		account.status = STATUS_SUCCESS;
@@ -457,12 +479,12 @@ BOOL CGameControl::FindImageInLoginWnd(const string& image)
 	return bFind;
 }
 
-string CGameControl::CreateName()
+string CGameControl::CreateName(const unsigned int & count)
 {
 	//随机选取12个英文字母
 	string Name;
 	srand((int)time(0));
-	for(int i(0); i < 12; i++){
+	for(int i(0); i < count; i++){
 		char ch = rand()%26+'a';
 		Name.push_back(ch);
 	}
