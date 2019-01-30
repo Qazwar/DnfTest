@@ -52,7 +52,7 @@ void CGameControl::GameProcess()
 		auto hwnd = GetGameWnd();
 		while(true){
 			if(hwnd){
-				bSuccess;
+				bSuccess = true;
 				break;
 			}else if(GetTickCount()-now > 3*60*1000 ){
 				break;
