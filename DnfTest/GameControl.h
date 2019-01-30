@@ -2,7 +2,6 @@
 #include "opencv/cv.h"
 #include "opencv/cxcore.h"
 #include "opencv/highgui.h"
-#include "DD.h"
 class account_info;
 using namespace std;  
 using namespace cv;
@@ -36,7 +35,5 @@ private:
 	HWND m_hShow;
 	int	m_Index;
 	bool m_Stop;
-public:
-	static	CDD* dd ;  // DD ¿‡ 
 };
 

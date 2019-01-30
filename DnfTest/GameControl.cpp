@@ -6,13 +6,11 @@
 #include "tlhelp32.h"
 
 char g_ExePath[MAX_PATH] = {0};
-CDD*::CGameControl::dd = new CDD;
 
 CGameControl::CGameControl(HWND hShow):
 m_Index(0), m_hShow(hShow),m_Stop(false)
 {
 	GetPath(g_ExePath);
-	dd->GetFunAddr(_T("DD85590.32.dll"));
 	KillProcess("Client.exe");
 	KillProcess("DNF.exe");
 }

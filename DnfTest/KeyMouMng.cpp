@@ -302,7 +302,7 @@ void CKeyMouMng::InputPassword( char* szBuffer)
 	//	MyKeyUp(szChar);
 	//	Sleep(300 + rand()%100);
 	//}
-	CGameControl::dd->DD_str(szBuffer);
+	dd.DD_str(szBuffer);
 	LOG_DEBUG<<" input password "<<szBuffer;
 }
 
