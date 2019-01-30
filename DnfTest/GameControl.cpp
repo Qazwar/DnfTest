@@ -44,7 +44,6 @@ CGameControl::~CGameControl(void)
 
 void CGameControl::ClickLoginInArea()
 {
-	CKeyMouMng::Ptr()->MouseMoveAndClick(828,496);  //点击编辑框
 	while(true){
 		if(FindImageInLoginWnd("QQ.png")){
 			break;
@@ -76,7 +75,7 @@ void CGameControl::StartGame()
 		AfxMessageBox(_T("启动游戏失败"), MB_OK);
 		return;
 	}
-	SendMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_START, NULL);
+	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_START, NULL);
 }
 
 void CGameControl::InputCodes()
@@ -85,9 +84,9 @@ void CGameControl::InputCodes()
 	{
 		Sleep(500);
 	}
-	Sleep(000);
+	Sleep(1000);
 	ClickLoginInArea();
-	SendMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_LOGIN, NULL);
+	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_LOGIN, NULL);
 	while (!FindImageInLoginWnd("LoginByCode.png"))
 	{
 		Sleep(500);
@@ -108,7 +107,7 @@ void CGameControl::InputCodes()
 	CKeyMouMng::Ptr()->InputCharByKeyBoard(account.qq.c_str());
 	CKeyMouMng::Ptr()->KeyboardButtonEx(VK_TAB);
 	Sleep(1000);
-	//CKeyMouMng::Ptr()->MouseMoveAndClick(1092,373);  //点击编辑框
+	LOG_DEBUG<<"账号 "<<account.qq.c_str()<<" 密码 "<<account.password.c_str();
 	CKeyMouMng::Ptr()->InputPassword( const_cast<char*>(account.password.c_str()));
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClick(1044,482);  //点击登录
@@ -136,11 +135,13 @@ void CGameControl::CreateRole()
 		Sleep(100);
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(801,412);  //点击已经设置冒险团名称
 	}
-	SendMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE, NULL);
+	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE, NULL);
 	LOG_DEBUG<<"可以创建角色了";
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(468,823);  //点击创建角色
 	Sleep(1000);
+	//随机选择职业
+	SelectProfession();
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(1416,645);  //创建角色第二步
 	Sleep(1000);
 	while(!FindImageInGameWnd("NameCheckPass.png", 0.99, false))
@@ -183,7 +184,7 @@ void CGameControl::CreateRole()
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(nXtmp+140, nYtmp+115);  //点击编辑框
 	}
 	LOG_DEBUG<<"点击创建角色成功";
-	SendMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE_DONE, NULL);
+	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE_DONE, NULL);
 }
 
 void CGameControl::EndGame()
@@ -205,7 +206,7 @@ BOOL CGameControl::IsCanCreateRoles()
 void CGameControl::ClickAgreement()
 {
 	if(FindImageInGameWnd("Agreement.png")){
-		CKeyMouMng::Ptr()->MouseMoveAndClick(948,413); //点击创建角色成功
+		CKeyMouMng::Ptr()->MouseMoveAndClick(948,413); //点击同意协议
 	}
 	Sleep(100);
 }
@@ -489,4 +490,13 @@ string CGameControl::CreateName(const unsigned int & count)
 		Name.push_back(ch);
 	}
 	return Name;
+}
+
+void CGameControl::SelectProfession()
+{
+	srand((int)time(0));
+	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(354+rand()%910,698+rand()%190);  //点击职业
+	Sleep(rand()%1000);
+	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(460+rand()%448,606+rand()%64);  //点击职业
+	Sleep(rand()%1000);
 }

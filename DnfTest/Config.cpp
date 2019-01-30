@@ -66,6 +66,7 @@ void Config::SaveData()
 	auto str = pt_root.ToString();
 	ofile.write(str.c_str(), str.size());
 	ofile.close();
+	SaveAccountData();
 }
 
 void Config::SaveAccountData()

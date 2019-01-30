@@ -28,6 +28,7 @@ private:
 	BOOL FindImageInGameWnd(const string& image, float fSame = 0.7, bool bGray = true);
 	BOOL FindImageInLoginWnd(const string& image);
 	string CreateName(const unsigned int & count);
+	void SelectProfession();
 private:
 	HWND m_hShow;
 	int	m_Index;
