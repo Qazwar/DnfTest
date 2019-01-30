@@ -55,6 +55,7 @@ void CGameControl::GameProcess()
 		while(true){
 			if(hwnd){
 				bSuccess;
+				break;
 			}else if(GetTickCount()-now > 3*60*1000 ){
 				break;
 			}
