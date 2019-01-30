@@ -2,6 +2,7 @@
 #include "opencv/cv.h"
 #include "opencv/cxcore.h"
 #include "opencv/highgui.h"
+#include "DD.h"
 class account_info;
 using namespace std;  
 using namespace cv;
@@ -19,6 +20,7 @@ public:
 	void SetAccountIndex(const int& index);
 	bool FindCurrentAccountIndex();
 	void Stop();
+	void GameProcess();
 private:
 	BOOL IsCanCreateRoles();
 	void ClickAgreement();
@@ -29,9 +31,12 @@ private:
 	BOOL FindImageInLoginWnd(const string& image);
 	string CreateName(const unsigned int & count);
 	void SelectProfession();
+	BOOL KillProcess(const string& processName);
 private:
 	HWND m_hShow;
 	int	m_Index;
 	bool m_Stop;
+public:
+	static	CDD* dd ;  // DD ¿‡ 
 };
 

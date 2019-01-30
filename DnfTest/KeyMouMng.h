@@ -65,7 +65,6 @@ class CKeyMouMng : public Pattern::Singleton<CKeyMouMng>
 {
 public:
 	CKeyMouMng(void){
-		int ret = dd.GetFunAddr(_T("DD85590.32.dll"));
 	};
 	~CKeyMouMng(){};
 public:
@@ -83,6 +82,5 @@ public:
 	void MouseMoveAndClickGameWnd(int nX,int nY);
 	void InputPassword(char* szBuffer);
 public:
-	CDD dd ;  // DD ¿‡ 
  
 };

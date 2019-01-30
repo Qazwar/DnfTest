@@ -27,7 +27,9 @@ int CDD::GetFunAddr(CString dllfile)
 	{
 		return -11; //文件不存在
 	}
-
+	if(m_hModule!=NULL){
+		return 0;
+	}
 	m_hModule = ::LoadLibrary(dllfile);
 
 	if ( m_hModule==NULL)

@@ -2,14 +2,18 @@
 #include "GameControl.h"
 #include "KeyMouMng.h"
 #include "WaitForEvent.h"
-#include "Config.h"
-char g_ExePath[MAX_PATH] = {0};
+#include "Config.h" 
+#include "tlhelp32.h"
 
+char g_ExePath[MAX_PATH] = {0};
+CDD*::CGameControl::dd = new CDD;
 
 CGameControl::CGameControl(HWND hShow):
 m_Index(0), m_hShow(hShow),m_Stop(false)
 {
 	GetPath(g_ExePath);
+	KillProcess("Client.exe");
+	KillProcess("DNF.exe");
 }
 bool CGameControl::FindCurrentAccountIndex()
 {
@@ -36,6 +40,30 @@ bool CGameControl::FindCurrentAccountIndex()
 void CGameControl::Stop()
 {
 	m_Stop = true;
+}
+
+void CGameControl::GameProcess()
+{
+	Sleep(1000);
+	bool bSuccess = false;
+	while(true){
+		StartGame();
+		InputCodes();
+		auto now = GetTickCount();
+		auto hwnd = GetGameWnd();
+		while(true){
+			if(hwnd){
+				bSuccess;
+			}else if(GetTickCount()-now > 3*60*1000 ){
+				break;
+			}
+		}
+		if(bSuccess){
+			break;
+		}
+	}
+	CreateRole();
+	EndGame();
 }
 
 CGameControl::~CGameControl(void)
@@ -116,7 +144,6 @@ void CGameControl::InputCodes()
 
 void CGameControl::CreateRole()
 {
-
 	LOG_DEBUG<<"开始创建角色";
 	while (!IsCanCreateRoles())
 	{
@@ -129,6 +156,7 @@ void CGameControl::CreateRole()
 		const auto groupName = CreateName(16);
 		LOG_DEBUG<<"【冒险团名字】"<<groupName.c_str();
 		CKeyMouMng::Ptr()->InputCharByKeyBoard(groupName.c_str());
+		CKeyMouMng::Ptr()->KeyboardButtonEx(VK_RETURN);
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(519,642);  //点击设置
 		Sleep(500);
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(762,544);  //点击确定
@@ -191,6 +219,7 @@ void CGameControl::EndGame()
 {
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(1022,819);  //点击结束游戏
+	Sleep(2000);
 }
 
 void CGameControl::SetAccountIndex(const int& index)
@@ -499,4 +528,46 @@ void CGameControl::SelectProfession()
 	Sleep(rand()%1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(460+rand()%448,606+rand()%64);  //点击职业
 	Sleep(rand()%1000);
+}
+
+BOOL CGameControl::KillProcess(const string& processName)
+{
+	CString strProcessName = common::stringToCString(processName);
+
+	strProcessName.MakeLower();
+
+	//创建进程快照(TH32CS_SNAPPROCESS表示创建所有进程的快照)
+
+	HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	//PROCESSENTRY32进程快照的结构体
+	PROCESSENTRY32 pe;
+	//实例化后使用Process32First获取第一个快照的进程前必做的初始化操作
+	pe.dwSize = sizeof(PROCESSENTRY32);
+	//下面的IF效果同:
+
+	//if(hProcessSnap == INVALID_HANDLE_VALUE)   无效的句柄
+	if (!Process32First(hSnapShot, &pe))
+	{
+		return FALSE;
+	}
+
+	//如果句柄有效  则一直获取下一个句柄循环下去
+	while (Process32Next(hSnapShot, &pe))
+	{
+		//pe.szExeFile获取当前进程的可执行文件名称
+		CString scTmp = pe.szExeFile;
+		//比较当前进程的可执行文件名称和传递进来的文件名称是否相同
+		//相同的话Compare返回0
+		if (scTmp.MakeLower().Find(strProcessName) != -1)
+		{
+			//从快照进程中获取该进程的PID(即任务管理器中的PID)
+			DWORD dwProcessID = pe.th32ProcessID;
+			HANDLE hProcess = ::OpenProcess(PROCESS_TERMINATE, FALSE, dwProcessID);
+			::TerminateProcess(hProcess, 0);
+			CloseHandle(hProcess);
+			return TRUE;
+		}
+	}
+	CloseHandle(hSnapShot);
+	return FALSE;
 }

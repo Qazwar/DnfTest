@@ -129,10 +129,7 @@ void CDnfTestDlg::StartProcess(void* param)
 	pThis->m_ButtonStart.EnableWindow(FALSE);
 	// TODO: 在此添加控件通知处理程序代码	
 	while(pThis->m_gameControl->FindCurrentAccountIndex()){
-		pThis->m_gameControl->StartGame();
-		pThis->m_gameControl->InputCodes();
-		pThis->m_gameControl->CreateRole();
-		pThis->m_gameControl->EndGame();
+		pThis->m_gameControl->GameProcess();
 	}
 	pThis->onGameStatusChange(GAME_ALL_ACCOUNT_DONE);
 	pThis->m_ButtonStart.EnableWindow(TRUE);

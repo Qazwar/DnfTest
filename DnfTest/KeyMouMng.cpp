@@ -3,6 +3,7 @@
 #include "WaitForEvent.h"
 #include "winio.h"
 #include "DD.h"
+#include "GameControl.h"
 
 //=============================按键模式============================
 //鼠标移动
@@ -301,7 +302,7 @@ void CKeyMouMng::InputPassword( char* szBuffer)
 	//	MyKeyUp(szChar);
 	//	Sleep(300 + rand()%100);
 	//}
-	dd.DD_str(szBuffer);
-
+	CGameControl::dd->DD_str(szBuffer);
+	LOG_DEBUG<<" input password "<<szBuffer;
 }
 
