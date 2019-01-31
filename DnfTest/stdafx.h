@@ -65,6 +65,7 @@ using namespace std;
 #include <ctime>
 #include <list>
 #include <vector>
+#include <map>
 #include "MyLog.h"
 #include "CommonStatic.h"
 #include "Constants.h"

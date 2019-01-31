@@ -284,25 +284,33 @@ void CKeyMouMng::InputPassword( char* szBuffer)
 	AttachThreadInput(dwThread, GetCurrentThreadId(), TRUE);
 	
 	//HWND hFocus = GetFocus();
-	//for(auto i(0); i < strlen(szBuffer); i++)
-	//{
-	//	char szChar = szBuffer[i];
-	//	if ( szBuffer[i] >= 'a' && szBuffer[i] <= 'z')
-	//	{
-	//		szChar -= 'a';
-	//		szChar += 0x41;
-	//	}
-	//	else if ( szBuffer[i] >= '0' && szBuffer[i] <= '1')
-	//	{
-	//		szChar -= '0';
-	//		szChar += 0x30;
-	//	}
-	//	MyKeyDown(szChar); //°´ÏÂA¼ü
-	//	Sleep(300 + rand()%100);
-	//	MyKeyUp(szChar);
-	//	Sleep(300 + rand()%100);
-	//}
-	dd.DD_str(szBuffer);
+	for(auto i(0); i < strlen(szBuffer); i++)
+	{
+		char szChar = szBuffer[i];
+		int code = 0;
+		if ( szBuffer[i] >= 'a' && szBuffer[i] <= 'z')
+		{
+			code = getKeyCode(szChar);
+		}
+		else if ( szBuffer[i] >= '0' && szBuffer[i] <= '9')
+		{
+			code = 800 + szChar - '0';
+		}
+		dd.DD_key(code, 1);
+		Sleep(300 + rand()%100);
+		dd.DD_key(code, 2);
+		Sleep(300 + rand()%100);
+	}
+	//dd.DD_str(szBuffer);
 	LOG_DEBUG<<" input password "<<szBuffer;
+}
+
+int CKeyMouMng::getKeyCode(const char & ch)
+{
+	auto ret(0);
+	if(mapKeyCode.find(ch)!=mapKeyCode.end()){
+		ret = mapKeyCode[ch];
+	}
+	return ret;
 }
 

@@ -49,9 +49,8 @@ void CGameControl::GameProcess()
 		StartGame();
 		InputCodes();
 		auto now = GetTickCount();
-		auto hwnd = GetGameWnd();
 		while(true){
-			if(hwnd){
+			if(GetGameWnd()){
 				bSuccess = true;
 				break;
 			}else if(GetTickCount()-now > 3*60*1000 ){
@@ -160,8 +159,8 @@ void CGameControl::CreateRole()
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(519,642);  //点击设置
 		Sleep(500);
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(762,544);  //点击确定
-		Sleep(100);
-		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(801,412);  //点击已经设置冒险团名称
+		Sleep(500);
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(801,485);  //点击已经设置冒险团名称
 	}
 	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE, NULL);
 	LOG_DEBUG<<"可以创建角色了";
@@ -525,9 +524,9 @@ void CGameControl::SelectProfession()
 {
 	srand((int)time(0));
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(354+rand()%910,698+rand()%190);  //点击职业
-	Sleep(rand()%1000);
+	Sleep(500+rand()%500);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(460+rand()%448,606+rand()%64);  //点击职业
-	Sleep(rand()%1000);
+	Sleep(500+rand()%500);
 }
 
 BOOL CGameControl::KillProcess(const string& processName)

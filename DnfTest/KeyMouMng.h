@@ -66,6 +66,33 @@ class CKeyMouMng : public Pattern::Singleton<CKeyMouMng>
 public:
 	CKeyMouMng(void){
 		dd.GetFunAddr(_T("DD85590.32.dll"));
+		mapKeyCode['a'] = 401;
+		mapKeyCode['s'] = 402;
+		mapKeyCode['d'] = 403;
+		mapKeyCode['f'] = 404;
+		mapKeyCode['g'] = 405;
+		mapKeyCode['h'] = 406;
+		mapKeyCode['j'] = 407;
+		mapKeyCode['k'] = 408;
+		mapKeyCode['l'] = 409;
+		mapKeyCode['q'] = 301;
+		mapKeyCode['w'] = 302;
+		mapKeyCode['e'] = 303;
+		mapKeyCode['r'] = 304;
+		mapKeyCode['t'] = 305;
+		mapKeyCode['y'] = 306;
+		mapKeyCode['u'] = 307;
+		mapKeyCode['i'] = 308;
+		mapKeyCode['o'] = 309;
+		mapKeyCode['p'] = 310;
+		mapKeyCode['z'] = 501;
+		mapKeyCode['x'] = 502;
+		mapKeyCode['c'] = 503;
+		mapKeyCode['v'] = 504;
+		mapKeyCode['b'] = 505;
+		mapKeyCode['n'] = 506;
+		mapKeyCode['m'] = 507;
+
 	};
 	~CKeyMouMng(){};
 public:
@@ -82,6 +109,9 @@ public:
 	void InputCharByKeyBoard(const char* szBuffer);
 	void MouseMoveAndClickGameWnd(int nX,int nY);
 	void InputPassword(char* szBuffer);
+	int getKeyCode(const char & ch);
 public:
 	CDD dd ;  // DD ¿‡ 
+private:
+	map<char, int> mapKeyCode;
 };
