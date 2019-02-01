@@ -13,6 +13,8 @@ Config::Config()
 	pt_root.Get("game_path", game_path);
 	pt_root.Get("risk_group", risk_group);
 	pt_root.Get("role_name", role_name);
+	pt_root.Get("ip_address", ip_address);
+	pt_root.Get("ip_try_times", ip_try_times);
 	auto gameArea = pt_root["area"];
 	for (auto i(0); i < gameArea.GetArraySize(); i++)
 	{

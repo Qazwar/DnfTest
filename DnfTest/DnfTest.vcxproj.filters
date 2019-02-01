@@ -81,6 +81,9 @@
     <ClInclude Include="VerificationCode.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="VPNControler.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DnfTest.cpp">
@@ -120,6 +123,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="VerificationCode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="VPNControler.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

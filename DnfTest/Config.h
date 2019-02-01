@@ -22,10 +22,12 @@ class Config :public boost::serialization::singleton<Config>
 
 public:
 	Config();
+	string ip_address;
 	string game_path;
 	vector<area> game_area;
 	string risk_group;
 	string role_name;
+	int ip_try_times;
 	vector<account_info> accounts;
 	void SaveData();
 	void SaveAccountData();

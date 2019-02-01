@@ -12,7 +12,7 @@ public:
 	CGameControl(HWND hShow);
 	~CGameControl(void);
 	void ClickLoginInArea();
-	void StartGame();
+	bool StartGame();
 	bool InputCodes();
 	bool CreateRole();
 	void EndGame();
@@ -34,9 +34,12 @@ private:
 	string CreateName(const unsigned int & count);
 	void SelectProfession();
 	BOOL KillProcess(const string& processName);
+private: 
+	bool SwitchVPN();
 private:
 	HWND m_hShow;
 	int	m_Index;
 	bool m_Stop;
+	CString m_LastIP;
 };
 

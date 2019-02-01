@@ -9,7 +9,8 @@
 HWND GetLoginWnd()
 {
 	string strbuffer;
-	strbuffer = "地下城与勇士登录程序";auto iTimes(0);
+	strbuffer = "地下城与勇士登录程序";
+	auto iTimes(0);
 	HWND hWnd1 = NULL;
 	while (hWnd1==NULL&&iTimes++<=20)
 	{
@@ -24,6 +25,20 @@ HWND GetGameWnd()
 {
 	string strbuffer;
 	strbuffer = "地下城与勇士";
+	HWND hWnd1 = NULL;
+	auto iTimes(0);
+	while (hWnd1==NULL&&iTimes++<=20)
+	{
+		hWnd1 = ::FindWindow(NULL,strbuffer.c_str());
+		Sleep(1000);
+	}
+	return hWnd1;
+}
+
+HWND GetVPNWnd()
+{
+	string strbuffer;
+	strbuffer = "ET代理";
 	HWND hWnd1 = NULL;
 	auto iTimes(0);
 	while (hWnd1==NULL&&iTimes++<=20)

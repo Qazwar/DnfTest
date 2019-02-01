@@ -54,9 +54,10 @@ public:
 	CEdit m_EditGameStatus;
 private:
 	CGameControl *m_gameControl;
-	void onGameStatusChange(const GameStatus& status);
+	void onGameStatusChange(const GameStatus& status, LPARAM lParam = NULL);
 public:
 	CButton m_ButtonStart;
 	afx_msg void OnBnClickedButtonStop();
 	CButton m_ButtonStop;
+	CEdit m_EditIP;
 };

@@ -195,11 +195,9 @@ void CKeyMouMng::InputPassword( char* szBuffer)
 	hLoginWnd = GetLoginWnd();
 	if (hLoginWnd == NULL) 
 		return; 
-	DWORD dwThread = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
+	//DWORD dwThread = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
 	// 将前台窗口线程贴附到当前线程（也就是程序A中的调用线程）
-	AttachThreadInput(dwThread, GetCurrentThreadId(), TRUE);
-	
-	//HWND hFocus = GetFocus();
+	//AttachThreadInput(dwThread, GetCurrentThreadId(), TRUE);
 	for(auto i(0); i < strlen(szBuffer); i++)
 	{
 		char szChar = szBuffer[i];
@@ -217,7 +215,6 @@ void CKeyMouMng::InputPassword( char* szBuffer)
 		dd.DD_key(code, 2);
 		Sleep(300 + rand()%100);
 	}
-	//dd.DD_str(szBuffer);
 	LOG_DEBUG<<" input password "<<szBuffer;
 }
 

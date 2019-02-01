@@ -72,6 +72,7 @@ using namespace std;
 
 HWND GetLoginWnd();
 HWND GetGameWnd();
+HWND GetVPNWnd();
 //»ñµÃÂ·¾¶
 bool GetPath(OUT char* path);
 

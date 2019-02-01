@@ -5,6 +5,7 @@
 #include "Config.h" 
 #include "tlhelp32.h"
 #include "VerificationCode.h"
+#include "VPNControler.h"
 
 char g_ExePath[MAX_PATH] = {0};
 
@@ -41,7 +42,10 @@ bool CGameControl::GameProcess()
 	Sleep(1000);
 	bool bSuccess = false;
 	while(true){
-		StartGame();
+		if (StartGame())
+		{
+			break;
+		}
 		if(!InputCodes()){
 			break;
 		}
@@ -83,8 +87,12 @@ void CGameControl::ClickLoginInArea()
 	}
 }
 
-void CGameControl::StartGame()
+bool CGameControl::StartGame()
 {
+	if(!SwitchVPN()){
+		PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_IP_FAILED, NULL);
+		return false;
+	}
 	STARTUPINFOA StartupInfo;
 	PROCESS_INFORMATION ProcessInformation;
 	ZeroMemory(&StartupInfo, sizeof(StartupInfo));
@@ -103,9 +111,10 @@ void CGameControl::StartGame()
 	if(ProcessInformation.hProcess==NULL)
 	{
 		AfxMessageBox(_T("∆Ù∂Ø”Œœ∑ ß∞‹"), MB_OK);
-		return;
+		return false;
 	}
 	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_START, NULL);
+	return true;
 }
 
 bool CGameControl::InputCodes()
@@ -133,6 +142,7 @@ bool CGameControl::InputCodes()
 			bVerficationCode = true;
 			break;
 		}
+		Times++;
 	}
 	if(bVerficationCode){
 		int iTryTimes = 0;
@@ -742,4 +752,23 @@ BOOL CGameControl::KillProcess(const string& processName)
 	}
 	CloseHandle(hSnapShot);
 	return FALSE;
+}
+
+bool CGameControl::SwitchVPN()
+{
+	CVPNControler controler;
+	controler.clickOnSwitchButton();
+	auto Times(0);
+	while(Times++<=config_instance.ip_try_times){
+		Sleep(1000);
+		CString currentIP = CVPNControler::GetSystemIp();
+		LOG_DEBUG<<"ip "<<common::CStringTostring(currentIP).c_str();
+		if(currentIP.Compare(common::stringToCString(config_instance.ip_address))!=0&&m_LastIP.Compare(currentIP)!=0)
+		{
+			m_LastIP = currentIP;
+			PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_IP, (LPARAM)&m_LastIP);
+			return true;
+		}
+	}
+	return false;
 }

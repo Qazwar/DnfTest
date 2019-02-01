@@ -45,6 +45,7 @@ void CDnfTestDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_GAME_STATUS, m_EditGameStatus);
 	DDX_Control(pDX, IDC_BUTTON_START, m_ButtonStart);
 	DDX_Control(pDX, IDC_BUTTON_STOP, m_ButtonStop);
+	DDX_Control(pDX, IDC_EDIT_IP, m_EditIP);
 }
 
 BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
@@ -194,7 +195,7 @@ void CDnfTestDlg::InitData()
 LRESULT CDnfTestDlg::OnUpdateGameStatus(WPARAM wParam, LPARAM lParam)
 {
 	GameStatus status = (GameStatus)wParam;
-	onGameStatusChange(status);
+	onGameStatusChange(status, lParam);
 	return 0;
 }
 
@@ -256,7 +257,7 @@ void CDnfTestDlg::OnCbnSelchangeComboArea()
 	m_ComboServer.SetCurSel(0);
 }
 
-void CDnfTestDlg::onGameStatusChange(const GameStatus& status)
+void CDnfTestDlg::onGameStatusChange(const GameStatus& status, LPARAM lParam)
 {
 	if (status == GAME_START)
 	{
@@ -276,6 +277,14 @@ void CDnfTestDlg::onGameStatusChange(const GameStatus& status)
 	}else if (status == GAME_STOP)
 	{
 		m_EditGameStatus.SetWindowText(_T("”Œœ∑Ω· ¯"));
+	}else if (status == GAME_IP)
+	{
+		CString Text = _T("«–ªªip≥…π¶")+*(CString*)lParam;
+		m_EditIP.SetWindowText(Text);
+	}else if (status == GAME_IP_FAILED)
+	{
+		CString Text = _T("«–ªªip ß∞‹");
+		m_EditIP.SetWindowText(Text);
 	}
 }
 
