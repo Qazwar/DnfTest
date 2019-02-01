@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "KeyMouMng.h"
 #include "WaitForEvent.h"
-#include "winio.h"
 #include "DD.h"
 #include "GameControl.h"
 
@@ -189,89 +188,6 @@ void CKeyMouMng::MouseMoveAndClickGameWnd(int nX,int nY)
 	MouseLClick();
 	MouseLClick();
 }
-#define   KBC_KEY_CMD   0x64         //键盘命令端口 
-#define   KBC_KEY_DATA   0x60       //键盘数据端口 
-
-
-void   KBCWait4IBE() 
-{ 
-	DWORD   dwRegVal=0; 
-	do 
-	{   
-		bool flag = GetPortVal(KBC_KEY_CMD,&dwRegVal,1);
-		if(!flag){
-			LOG_DEBUG<<"GetPortVal failed "<< dwRegVal;
-		}
-		Sleep(100);
-	} 
-	while(dwRegVal & 0x00000001); 
-} 
-
-void   MyKeyDownEx(long   vKeyCoad)       //模拟扩展键按下，参数vKeyCoad是扩展键的虚拟码 
-{ 
-	long   btScancode; 
-	btScancode   =   MapVirtualKey(vKeyCoad,   0); 
-
-	KBCWait4IBE();       //等待键盘缓冲区为空 
-	SetPortVal(KBC_KEY_CMD,   0xD2,   1     );       //发送键盘写入命令 
-	KBCWait4IBE(); 
-	SetPortVal(KBC_KEY_DATA,   0xE0,   1   );   //写入扩展键标志信息 
-
-
-	KBCWait4IBE();       //等待键盘缓冲区为空 
-	SetPortVal(   KBC_KEY_CMD,   0xD2,   1   );         //发送键盘写入命令 
-	KBCWait4IBE(); 
-	SetPortVal(   KBC_KEY_DATA,   btScancode,   1   );   //写入按键信息,按下键 
-} 
-
-
-void   MyKeyUpEx(long   vKeyCoad)       //模拟扩展键弹起 
-{ 
-	long   btScancode; 
-	btScancode   =   MapVirtualKey(vKeyCoad,   0); 
-
-	KBCWait4IBE();       //等待键盘缓冲区为空 
-	SetPortVal(KBC_KEY_CMD,   0xD2,   1   );         //发送键盘写入命令 
-	KBCWait4IBE(); 
-	SetPortVal   (KBC_KEY_DATA,   0xE0,   1   );   //写入扩展键标志信息 
-
-
-	KBCWait4IBE();     //等待键盘缓冲区为空 
-	SetPortVal(KBC_KEY_CMD,   0xD2,   1   );         //发送键盘写入命令 
-	KBCWait4IBE(); 
-	SetPortVal(KBC_KEY_DATA,   (btScancode   |   0x80),   1);     //写入按键信息，释放键 
-} 
-
-void   MyKeyDown(long   vKeyCoad) 
-{ 
-	LOG_DEBUG << "key down  key code "<< vKeyCoad;//发送键盘写入命令
-	long   byScancode   =   MapVirtualKey(vKeyCoad,0);   
-	KBCWait4IBE();//等待键盘缓冲区为空   
-	if(SetPortVal(0x64,0xD2,1)==false)
-		LOG_DEBUG << "发送键盘写入命令失败! key code "<< vKeyCoad;//发送键盘写入命令 
-
-	LOG_DEBUG << "key down before input code" << vKeyCoad;
-	KBCWait4IBE();//等待键盘缓冲区为空   
-	if(SetPortVal(0x60,(ULONG)byScancode,1)==false)
-		LOG_DEBUG << "按下键失败! " << vKeyCoad;//写入按键信息,按下键 
-	LOG_DEBUG << "after input code" << vKeyCoad;
-} 
-
-
-void   MyKeyUp(long   vKeyCoad) 
-{ 
-	LOG_DEBUG << "key up  key code "<< vKeyCoad;//发送键盘写入命令
-	long   byScancode   =   MapVirtualKey(vKeyCoad,0);   
-	KBCWait4IBE();//等待键盘缓冲区为空   
-	if(SetPortVal(0x64,0xD2,1)==false)
-		LOG_DEBUG << "发送键盘写入命令失败! ";//发送键盘写入命令 
-
-	LOG_DEBUG << "key up before input code" << vKeyCoad;
-	KBCWait4IBE();//等待键盘缓冲区为空   
-	if(SetPortVal(0x60,(ULONG)(byScancode   |   0x80),1)==false)
-		LOG_DEBUG << "释放键失败! ";//写入按键信息，释放键 
-	LOG_DEBUG << "key up after input code" << vKeyCoad;
-} 
 
 void CKeyMouMng::InputPassword( char* szBuffer)
 {

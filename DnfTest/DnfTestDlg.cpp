@@ -7,7 +7,6 @@
 #include "DnfTestDlg.h"
 #include "afxdialogex.h"
 #include "GameControl.h"
-#include "winio.h"
 #include "Config.h"
 
 #ifdef _DEBUG
@@ -128,8 +127,7 @@ void CDnfTestDlg::StartProcess(void* param)
 	CDnfTestDlg*pThis = (CDnfTestDlg*)param;
 	pThis->m_ButtonStart.EnableWindow(FALSE);
 	// TODO: 在此添加控件通知处理程序代码	
-	while(pThis->m_gameControl->FindCurrentAccountIndex()){
-		pThis->m_gameControl->GameProcess();
+	while(pThis->m_gameControl->GameProcess()){
 	}
 	pThis->onGameStatusChange(GAME_ALL_ACCOUNT_DONE);
 	pThis->m_ButtonStart.EnableWindow(TRUE);

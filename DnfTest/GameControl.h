@@ -13,16 +13,19 @@ public:
 	~CGameControl(void);
 	void ClickLoginInArea();
 	void StartGame();
-	void InputCodes();
-	void CreateRole();
+	bool InputCodes();
+	bool CreateRole();
 	void EndGame();
 	void SetAccountIndex(const int& index);
 	bool FindCurrentAccountIndex();
 	void Stop();
-	void GameProcess();
+	bool GameProcess();
 private:
-	BOOL IsCanCreateRoles();
 	void ClickAgreement();
+	void InputAccount();
+	void InputPassword();
+	bool CreateOneRole();
+	BOOL SaveVerificationCodeImage();
 	BOOL ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSame,
 		OUT int& nX,OUT int& nY,bool bSave, bool bGray = true /*是否用灰度图比较*/);
 	IplImage* HBitmapToLpl(HBITMAP hBmp);

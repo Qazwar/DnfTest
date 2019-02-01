@@ -5,7 +5,6 @@
 #include "stdafx.h"
 #include "DnfTest.h"
 #include "DnfTestDlg.h"
-#include "winio.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -53,12 +52,6 @@ BOOL CDnfTestApp::InitInstance()
 	CWinApp::InitInstance();
 
 	MyLog::Init("\\Log");
-	if(InitializeWinIo()==false)
-	{
-		LOG_DEBUG<<"驱动程序加载失败! ";
-		//AfxMessageBox(_T("由于驱动程序加载失败，程序将退出！"));
-		//return FALSE;
-	}
 
 
 	AfxEnableControlContainer();
@@ -90,7 +83,6 @@ BOOL CDnfTestApp::InitInstance()
 		//  “取消”来关闭对话框的代码
 	}
 
-	ShutdownWinIo();
 	// 删除上面创建的 shell 管理器。
 	if (pShellManager != NULL)
 	{
