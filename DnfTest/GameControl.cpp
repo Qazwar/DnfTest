@@ -42,7 +42,7 @@ bool CGameControl::GameProcess()
 	Sleep(1000);
 	bool bSuccess = false;
 	while(true){
-		if (StartGame())
+		if (!StartGame())
 		{
 			break;
 		}
@@ -136,19 +136,18 @@ bool CGameControl::InputCodes()
 	//登录完成，进入验证码界面
 	bool bVerficationCode = false;
 	int Times = 0;
-	while(Times<=3){
+	while(Times++<=6){
 		Sleep(1000);
 		if(FindImageInLoginWnd("VerificationCode.png")||FindImageInLoginWnd("PassWordWrong.png")){
 			bVerficationCode = true;
 			break;
 		}
-		Times++;
 	}
 	if(bVerficationCode){
 		int iTryTimes = 0;
-		while(iTryTimes<3){
+		while(iTryTimes++<=3){
 			int verficationCodeTimes = 0;//验证码重试4次
-			while(FindImageInLoginWnd("VerificationCode.png")&&verficationCodeTimes<4){
+			while(FindImageInLoginWnd("VerificationCode.png")&&verficationCodeTimes++<=4){
 				if(SaveVerificationCodeImage())
 				{
 					CString strRe = CVerificationCode::Ptr()->pRecYZM_A((LPSTR)(LPCSTR)common::stringToCString(string(g_ExePath)+"VerificationCode\\tmp.png"),
@@ -165,16 +164,14 @@ bool CGameControl::InputCodes()
 						Sleep(500);
 					}
 				}
-				verficationCodeTimes++;
 			}
 			if(FindImageInLoginWnd("PassWordWrong.png")){
 				CKeyMouMng::Ptr()->MouseMoveAndClick(600,434);  //点击确认
 				Sleep(500);
 				InputPassword();
 			}
-			iTryTimes++;
 		}
-		if(iTryTimes==3){
+		if(iTryTimes==4){
 			return false;
 		}
 	}
