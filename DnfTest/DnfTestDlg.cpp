@@ -8,6 +8,9 @@
 #include "afxdialogex.h"
 #include "GameControl.h"
 #include "Config.h"
+#include "Global.h"
+#include "HttpClient.h"
+#include "DialogRegister.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -46,6 +49,10 @@ void CDnfTestDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_START, m_ButtonStart);
 	DDX_Control(pDX, IDC_BUTTON_STOP, m_ButtonStop);
 	DDX_Control(pDX, IDC_EDIT_IP, m_EditIP);
+	DDX_Control(pDX, IDC_COMBO_FIRST_ROLE, m_ComboFirstRole);
+	DDX_Control(pDX, IDC_COMBO_SECOND_ROLE, m_ComboSecondRole);
+	DDX_Control(pDX, IDC_COMBO_FIRST_PROFESSION, m_ComboxFirstProfession);
+	DDX_Control(pDX, IDC_COMBO_SECOND_PROFESSION, m_ComboxSecondProfession);
 }
 
 BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
@@ -59,6 +66,9 @@ BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO_AREA, &CDnfTestDlg::OnCbnSelchangeComboArea)
 	ON_MESSAGE(WM_UPDATE_GAME_STATUS, &CDnfTestDlg::OnUpdateGameStatus)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CDnfTestDlg::OnBnClickedButtonStop)
+	ON_CBN_SELCHANGE(IDC_COMBO_FIRST_ROLE, &CDnfTestDlg::OnCbnSelchangeComboFirstRole)
+	ON_CBN_SELCHANGE(IDC_COMBO_SECOND_ROLE, &CDnfTestDlg::OnCbnSelchangeComboSecondRole)
+	ON_BN_CLICKED(IDC_BUTTON_TEST_PROFESSION, &CDnfTestDlg::OnBnClickedButtonTestProfession)
 END_MESSAGE_MAP()
 
 
@@ -76,6 +86,17 @@ BOOL CDnfTestDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	//初始化WinIo库
 	InitData();
+	if(common::QueryUser()==0){
+		this->ShowWindow(SW_HIDE);
+		CDialogRegister dlg;
+		dlg.DoModal();
+	}
+	this->ShowWindow(SW_SHOW);
+#ifndef DEBUG
+	this->GetDlgItem(IDC_BUTTON_CREATE_ROLE)->ShowWindow(SW_HIDE);
+	this->GetDlgItem(IDC_BUTTON1)->ShowWindow(SW_HIDE);
+#endif
+	
 	m_gameControl = new CGameControl(this->GetSafeHwnd());
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -120,6 +141,11 @@ HCURSOR CDnfTestDlg::OnQueryDragIcon()
 
 void CDnfTestDlg::OnBnClickedButtonStart()
 {
+	if(common::QueryUser()==0){
+		AfxMessageBox("用户未授权");
+		return;
+	}
+	SaveUIInfo();
 	_beginthread(CDnfTestDlg::StartProcess, NULL, this);
 }
 
@@ -163,7 +189,7 @@ void CDnfTestDlg::InitData()
 		 m_ListAccount.SetItemText(i, 2, common::stringToCString(account.qq));
 		 m_ListAccount.SetItemText(i, 3, common::stringToCString(account.password));
 	}
-	auto roleNameArray = common::SplitString(config_instance.role_name, ';');
+	auto roleNameArray = common::SplitString(config_instance.role_name_type, ';');
 	for (auto i(0); i < roleNameArray->GetSize(); i++)
 	{
 		m_ComboRoleName.AddString(roleNameArray->GetAt(i));
@@ -174,7 +200,7 @@ void CDnfTestDlg::InitData()
 	delete roleNameArray;
 	roleNameArray = nullptr;
 
-	auto riskGroupArray = common::SplitString(config_instance.role_name, ';');
+	auto riskGroupArray = common::SplitString(config_instance.role_name_type, ';');
 	for (auto i(0); i < riskGroupArray->GetSize(); i++)
 	{
 		m_ComboRiskGroup.AddString(riskGroupArray->GetAt(i));
@@ -190,6 +216,30 @@ void CDnfTestDlg::InitData()
 		m_ComboArea.AddString(common::stringToCString(config_instance.game_area.at(i).name));
 	}
 	m_ComboArea.SetCurSel(0);
+
+	auto firstRoleArray = common::SplitString(config_instance.first_role, ';');
+	for (auto i(0); i < firstRoleArray->GetSize(); i++)
+	{
+		m_ComboFirstRole.AddString(firstRoleArray->GetAt(i));
+	}
+	if(firstRoleArray->GetSize()>0){
+		m_ComboFirstRole.SetCurSel(0);
+		OnCbnSelchangeComboFirstRole();
+	}
+	delete firstRoleArray;
+	firstRoleArray = nullptr;
+
+	auto secondRoleArray = common::SplitString(config_instance.second_role, ';');
+	for (auto i(0); i < secondRoleArray->GetSize(); i++)
+	{
+		m_ComboSecondRole.AddString(secondRoleArray->GetAt(i));
+	}
+	if(secondRoleArray->GetSize()>0){
+		m_ComboSecondRole.SetCurSel(0);
+		OnCbnSelchangeComboSecondRole();
+	}
+	delete secondRoleArray;
+	secondRoleArray = nullptr;
 }
 
 LRESULT CDnfTestDlg::OnUpdateGameStatus(WPARAM wParam, LPARAM lParam)
@@ -254,7 +304,10 @@ void CDnfTestDlg::OnCbnSelchangeComboArea()
 	{
 		m_ComboServer.AddString(common::stringToCString(list_server.at(i)));
 	}
-	m_ComboServer.SetCurSel(0);
+	if(m_ComboServer.GetCount()>0){
+		m_ComboServer.SetCurSel(0);
+
+	}
 }
 
 void CDnfTestDlg::onGameStatusChange(const GameStatus& status, LPARAM lParam)
@@ -289,8 +342,70 @@ void CDnfTestDlg::onGameStatusChange(const GameStatus& status, LPARAM lParam)
 }
 
 
+void CDnfTestDlg::SaveUIInfo()
+{
+	m_ComboFirstRole.GetWindowText(global_instance.firstRole);
+	m_ComboxFirstProfession.GetWindowText(global_instance.firstRoleProfession);
+	m_ComboSecondRole.GetWindowText(global_instance.secondRole);
+	m_ComboxSecondProfession.GetWindowText(global_instance.secondRoleProfession);
+}
+
 void CDnfTestDlg::OnBnClickedButtonStop()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	m_gameControl->Stop();
+}
+
+
+void CDnfTestDlg::OnCbnSelchangeComboFirstRole()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CString csText;
+	m_ComboFirstRole.GetWindowText(csText);
+	auto Text = common::CStringTostring(csText);
+	const auto & list_profession = config_instance.professions;
+	m_ComboxFirstProfession.ResetContent();
+	for (int i(0); i < list_profession.size(); i++)
+	{
+		if(list_profession.at(i).name == Text){
+			for (int j(0); j < list_profession.at(i).profession.size(); j++){
+				m_ComboxFirstProfession.AddString(common::stringToCString(list_profession.at(i).profession.at(j)));
+			}
+			break;
+		}
+	}
+	if(m_ComboxFirstProfession.GetCount()>0){
+		m_ComboxFirstProfession.SetCurSel(0);
+	}
+}
+
+
+void CDnfTestDlg::OnCbnSelchangeComboSecondRole()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CString csText;
+	m_ComboSecondRole.GetWindowText(csText);
+	auto Text = common::CStringTostring(csText);
+	const auto & list_profession = config_instance.professions;
+	m_ComboxSecondProfession.ResetContent();
+	for (int i(0); i < list_profession.size(); i++)
+	{
+		if(list_profession.at(i).name == Text){
+			for (int j(0); j < list_profession.at(i).profession.size(); j++){
+				m_ComboxSecondProfession.AddString(common::stringToCString(list_profession.at(i).profession.at(j)));
+			}
+			break;
+		}
+	}
+	if(m_ComboxSecondProfession.GetCount()>0){
+		m_ComboxSecondProfession.SetCurSel(0);
+	}
+}
+
+
+void CDnfTestDlg::OnBnClickedButtonTestProfession()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SaveUIInfo();
+	m_gameControl->SelectProfession();
 }

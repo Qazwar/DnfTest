@@ -4,5 +4,7 @@ namespace common{
 	CString stringToCString(const string& str);
 	string CStringTostring(const CString& cs);
 	CStringArray* SplitString(const string& str,  char split);
-
+	string getMAC();
+	int QueryUser();
+	int RegisterUser();
 }

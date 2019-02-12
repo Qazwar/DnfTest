@@ -13,8 +13,10 @@ CGameControl::CGameControl(HWND hShow):
 m_Index(0), m_hShow(hShow),m_Stop(false)
 {
 	GetPath(g_ExePath);
+#ifndef _DEBUG
 	KillProcess("Client.exe");
 	KillProcess("DNF.exe");
+#endif
 }
 bool CGameControl::FindCurrentAccountIndex()
 {
@@ -24,7 +26,8 @@ bool CGameControl::FindCurrentAccountIndex()
 	//找到第一个没有创建角色的账号
 	const auto& accounts = config_instance.accounts;
 	m_Index++;
-	if(m_Index == accounts.size()){
+	if(m_Index == accounts.size())
+	{
 		return false;
 	}
 	return true;
@@ -89,10 +92,12 @@ void CGameControl::ClickLoginInArea()
 
 bool CGameControl::StartGame()
 {
+#ifndef DEBUG
 	if(!SwitchVPN()){
 		PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_IP_FAILED, NULL);
 		return false;
 	}
+#endif // DEBUG
 	STARTUPINFOA StartupInfo;
 	PROCESS_INFORMATION ProcessInformation;
 	ZeroMemory(&StartupInfo, sizeof(StartupInfo));
@@ -703,9 +708,35 @@ string CGameControl::CreateName(const unsigned int & count)
 void CGameControl::SelectProfession()
 {
 	srand((int)time(0));
-	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(354+rand()%910,698+rand()%190);  //点击职业
+	auto positionX = 0;
+	auto positionY = 0;
+	for (auto i(0); i < config_instance.professionPositions.size(); i++)
+	{
+		if(config_instance.professionPositions.at(i).name == common::CStringTostring(global_instance.firstRole))
+		{
+			positionX = config_instance.professionPositions.at(i).positionX+rand()%96;
+			positionY = config_instance.professionPositions.at(i).positionY+rand()%76;
+			break;
+		}
+	}
+	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(positionX, positionY);  //点击第一职业
 	Sleep(500+rand()%500);
-	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(460+rand()%448,606+rand()%64);  //点击职业
+	auto professionIndex(0);//角色第二职业的个数，用于定位
+	for (auto i(0); i < config_instance.professions.size(); i++)
+	{
+		if(config_instance.professions.at(i).name == common::CStringTostring(global_instance.firstRole))
+		{
+			for (auto j(0); j < config_instance.professions.at(i).profession.size(); j++)
+			{
+				if(config_instance.professions.at(i).profession.at(j) == common::CStringTostring(global_instance.firstRoleProfession))
+				{
+					professionIndex = j;
+				}
+			}
+			break;
+		}
+	}
+	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(467+rand()%99+professionIndex*118,612+rand()%50);  //点击第二职业
 	Sleep(500+rand()%500);
 }
 

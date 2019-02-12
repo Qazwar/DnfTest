@@ -76,6 +76,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>E:\kaige\boost_1_55_0\boost_1_55_0;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -138,13 +139,18 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opencv_core248.lib;opencv_highgui248.lib;opencv_imgproc248.lib;Nafxcw.lib;Libcmt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\kaige\games\AuxFrameWork\Project\Lib\opencv2.4;E:\kaige\Boost\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>Nafxcw.lib;Libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -195,9 +201,12 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DD.h" />
+    <ClInclude Include="DialogRegister.h" />
     <ClInclude Include="DnfTest.h" />
     <ClInclude Include="DnfTestDlg.h" />
     <ClInclude Include="GameControl.h" />
+    <ClInclude Include="Global.h" />
+    <ClInclude Include="HttpClient.h" />
     <ClInclude Include="KeyMouMng.h" />
     <ClInclude Include="MyLog.h" />
     <ClInclude Include="Resource.h" />
@@ -210,16 +219,21 @@
   <ItemGroup>
     <ClCompile Include="CJsonObject\cJSON.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CJsonObject\CJsonObject.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CommonStatic.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="DD.cpp" />
+    <ClCompile Include="DialogRegister.cpp" />
     <ClCompile Include="DnfTest.cpp" />
     <ClCompile Include="DnfTestDlg.cpp" />
     <ClCompile Include="GameControl.cpp" />
+    <ClCompile Include="Global.cpp" />
+    <ClCompile Include="HttpClient.cpp" />
     <ClCompile Include="KeyMouMng.cpp" />
     <ClCompile Include="MyLog.cpp" />
     <ClCompile Include="stdafx.cpp">

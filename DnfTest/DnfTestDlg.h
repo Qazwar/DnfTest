@@ -55,9 +55,17 @@ public:
 private:
 	CGameControl *m_gameControl;
 	void onGameStatusChange(const GameStatus& status, LPARAM lParam = NULL);
+	void SaveUIInfo();//保存ui信息，用于创建角色
 public:
 	CButton m_ButtonStart;
 	afx_msg void OnBnClickedButtonStop();
 	CButton m_ButtonStop;
 	CEdit m_EditIP;
+	CComboBox m_ComboFirstRole;
+	CComboBox m_ComboSecondRole;
+	afx_msg void OnCbnSelchangeComboFirstRole();
+	afx_msg void OnCbnSelchangeComboSecondRole();
+	CComboBox m_ComboxFirstProfession;
+	CComboBox m_ComboxSecondProfession;
+	afx_msg void OnBnClickedButtonTestProfession();
 };

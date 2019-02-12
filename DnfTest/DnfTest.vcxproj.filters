@@ -84,6 +84,15 @@
     <ClInclude Include="VPNControler.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DialogRegister.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Global.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpClient.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DnfTest.cpp">
@@ -126,6 +135,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="VPNControler.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogRegister.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Global.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpClient.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

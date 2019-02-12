@@ -1,9 +1,11 @@
 *.suo
 Debug/
+Release/
 X64/
 ipch/
 
 *.opensdf
 *.sdf
+*.aps
 *.aps
 *.aps

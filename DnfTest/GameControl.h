@@ -20,6 +20,7 @@ public:
 	bool FindCurrentAccountIndex();
 	void Stop();
 	bool GameProcess();
+	void SelectProfession();
 private:
 	void ClickAgreement();
 	void InputAccount();
@@ -32,7 +33,6 @@ private:
 	BOOL FindImageInGameWnd(const string& image, float fSame = 0.7, bool bGray = true);
 	BOOL FindImageInLoginWnd(const string& image);
 	string CreateName(const unsigned int & count);
-	void SelectProfession();
 	BOOL KillProcess(const string& processName);
 private: 
 	bool SwitchVPN();

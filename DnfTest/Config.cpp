@@ -8,14 +8,15 @@
 
 Config::Config()
 {
-	neb::CJsonObject pt_root;
-	pt_root.Parse(readFileIntoString("config.json"));
-	pt_root.Get("game_path", game_path);
-	pt_root.Get("risk_group", risk_group);
-	pt_root.Get("role_name", role_name);
-	pt_root.Get("ip_address", ip_address);
-	pt_root.Get("ip_try_times", ip_try_times);
-	auto gameArea = pt_root["area"];
+	m_file_root.Parse(readFileIntoString("config.json"));
+	m_file_root.Get("game_path", game_path);
+	m_file_root.Get("risk_group_type", risk_group_type);
+	m_file_root.Get("role_name_type", role_name_type);
+	m_file_root.Get("ip_address", ip_address);
+	m_file_root.Get("ip_try_times", ip_try_times);
+	m_file_root.Get("first_role", first_role);
+	m_file_root.Get("second_role", second_role);
+	auto gameArea = m_file_root["area"];
 	for (auto i(0); i < gameArea.GetArraySize(); i++)
 	{
 		const auto item = gameArea[i];
@@ -31,6 +32,34 @@ Config::Config()
 		}
 		game_area.push_back(TmpArea);
 	}
+	
+	auto profession = m_file_root["profession"];
+	for (auto i(0); i < profession.GetArraySize(); i++)
+	{
+		const auto item = profession[i];
+		first_profession TmpProfession;
+		item.Get("name", TmpProfession.name);
+		neb::CJsonObject profession;
+		item.Get("profession", profession);
+		for (auto j(0); j < profession.GetArraySize(); j++)
+		{
+			string profession_name;
+			profession.Get(j, profession_name);
+			TmpProfession.profession.push_back(profession_name);
+		}
+		professions.push_back(TmpProfession);
+	}
+
+	auto profession_positions = m_file_root["profession_position"];
+	for (auto i(0); i < profession_positions.GetArraySize(); i++)
+	{
+		profession_position item;
+		profession_positions[i].Get("name", item.name);
+		profession_positions[i].Get("positionX", item.positionX);
+		profession_positions[i].Get("positionY", item.positionY);
+		professionPositions.push_back(item);
+	}
+
 	neb::CJsonObject pt_root_account;
 	pt_root_account.Parse(readFileIntoString("account_config.json"));
 
@@ -42,7 +71,6 @@ Config::Config()
 		account_info account;
 		item.Get("qq", account.qq);
 		item.Get("password", account.password);
-		item.Get("role_name", account.role_name);
 		item.Get("status", account.status);
 		this->accounts.push_back(account);
 	}
@@ -63,9 +91,8 @@ std::string Config::readFileIntoString(char * filename)
 void Config::SaveData()
 {
 	ofstream ofile("config.json");
-	neb::CJsonObject pt_root;
-	pt_root.Add("game_path", this->game_path);	
-	auto str = pt_root.ToString();
+	m_file_root["game_path"] = this->game_path;
+	auto str = m_file_root.ToString();
 	ofile.write(str.c_str(), str.size());
 	ofile.close();
 	SaveAccountData();
