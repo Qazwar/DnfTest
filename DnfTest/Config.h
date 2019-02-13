@@ -15,6 +15,8 @@ public:
 class area{
 public:
 	string name;
+	string group;//电信或者联通
+	int index;
 	vector<string> server;
 };
 //第一职业
@@ -51,6 +53,8 @@ public:
 	void SaveAccountData();
 private:
 	string readFileIntoString(char * filename);
+	void LoadServerConfig();
+	void LoadAccountConfig();
 	neb::CJsonObject m_file_root;
 	  
 };  

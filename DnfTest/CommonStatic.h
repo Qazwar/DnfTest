@@ -1,4 +1,5 @@
 #pragma once
+#include "CJsonObject\CJsonObject.hpp"
 namespace common{
 	CString IntToCString(const int& i);
 	CString stringToCString(const string& str);
@@ -7,4 +8,5 @@ namespace common{
 	string getMAC();
 	int QueryUser();
 	int RegisterUser();
+	string GetDefines();
 }

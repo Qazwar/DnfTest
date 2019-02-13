@@ -68,4 +68,5 @@ public:
 	CComboBox m_ComboxFirstProfession;
 	CComboBox m_ComboxSecondProfession;
 	afx_msg void OnBnClickedButtonTestProfession();
+	afx_msg void OnBnClickedButtonTestArea();
 };

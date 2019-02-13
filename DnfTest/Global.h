@@ -10,6 +10,8 @@ public:
 	CString firstRoleProfession;
 	CString secondRole;
 	CString secondRoleProfession;
+	CString servername;
+	CString areaname;
 private:
 	string mac;
 };

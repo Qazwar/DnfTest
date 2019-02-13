@@ -11,7 +11,7 @@ class CGameControl
 public:
 	CGameControl(HWND hShow);
 	~CGameControl(void);
-	void ClickLoginInArea();
+	void SelectAreaProcess();
 	bool StartGame();
 	bool InputCodes();
 	bool CreateRole();
@@ -21,11 +21,12 @@ public:
 	void Stop();
 	bool GameProcess();
 	void SelectProfession();
+	void SelectArea();
 private:
 	void ClickAgreement();
 	void InputAccount();
 	void InputPassword();
-	bool CreateOneRole();
+	bool CreateARole();
 	BOOL SaveVerificationCodeImage();
 	BOOL ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSame,
 		OUT int& nX,OUT int& nY,bool bSave, bool bGray = true /*是否用灰度图比较*/);
@@ -40,6 +41,7 @@ private:
 	HWND m_hShow;
 	int	m_Index;
 	bool m_Stop;
+	int m_RoleIndex;
 	CString m_LastIP;
 };
 

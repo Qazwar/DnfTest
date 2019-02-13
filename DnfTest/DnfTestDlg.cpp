@@ -69,6 +69,7 @@ BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO_FIRST_ROLE, &CDnfTestDlg::OnCbnSelchangeComboFirstRole)
 	ON_CBN_SELCHANGE(IDC_COMBO_SECOND_ROLE, &CDnfTestDlg::OnCbnSelchangeComboSecondRole)
 	ON_BN_CLICKED(IDC_BUTTON_TEST_PROFESSION, &CDnfTestDlg::OnBnClickedButtonTestProfession)
+	ON_BN_CLICKED(IDC_BUTTON_TEST_AREA, &CDnfTestDlg::OnBnClickedButtonTestArea)
 END_MESSAGE_MAP()
 
 
@@ -306,7 +307,6 @@ void CDnfTestDlg::OnCbnSelchangeComboArea()
 	}
 	if(m_ComboServer.GetCount()>0){
 		m_ComboServer.SetCurSel(0);
-
 	}
 }
 
@@ -348,6 +348,8 @@ void CDnfTestDlg::SaveUIInfo()
 	m_ComboxFirstProfession.GetWindowText(global_instance.firstRoleProfession);
 	m_ComboSecondRole.GetWindowText(global_instance.secondRole);
 	m_ComboxSecondProfession.GetWindowText(global_instance.secondRoleProfession);
+	m_ComboServer.GetWindowText(global_instance.servername);
+	m_ComboArea.GetWindowText(global_instance.areaname);
 }
 
 void CDnfTestDlg::OnBnClickedButtonStop()
@@ -408,4 +410,12 @@ void CDnfTestDlg::OnBnClickedButtonTestProfession()
 	// TODO: 在此添加控件通知处理程序代码
 	SaveUIInfo();
 	m_gameControl->SelectProfession();
+}
+
+
+void CDnfTestDlg::OnBnClickedButtonTestArea()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SaveUIInfo();
+	m_gameControl->SelectArea();
 }

@@ -100,7 +100,6 @@ int CHttpClient::ExecuteRequest(LPCTSTR strMethod, LPCTSTR strUrl,LPCTSTR strHea
         CString cs(pUnicode);
         delete []pUnicode; 
         pUnicode = NULL;
- 
         strResponse = cs;
  
         Clear();

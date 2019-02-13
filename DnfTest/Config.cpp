@@ -10,70 +10,10 @@ Config::Config()
 {
 	m_file_root.Parse(readFileIntoString("config.json"));
 	m_file_root.Get("game_path", game_path);
-	m_file_root.Get("risk_group_type", risk_group_type);
-	m_file_root.Get("role_name_type", role_name_type);
 	m_file_root.Get("ip_address", ip_address);
 	m_file_root.Get("ip_try_times", ip_try_times);
-	m_file_root.Get("first_role", first_role);
-	m_file_root.Get("second_role", second_role);
-	auto gameArea = m_file_root["area"];
-	for (auto i(0); i < gameArea.GetArraySize(); i++)
-	{
-		const auto item = gameArea[i];
-		area TmpArea;
-		item.Get("name", TmpArea.name);
-		neb::CJsonObject server;
-		item.Get("server", server);
-		for (auto j(0); j < server.GetArraySize(); j++)
-		{
-			string server_name;
-			server.Get(j, server_name);
-			TmpArea.server.push_back(server_name);
-		}
-		game_area.push_back(TmpArea);
-	}
-	
-	auto profession = m_file_root["profession"];
-	for (auto i(0); i < profession.GetArraySize(); i++)
-	{
-		const auto item = profession[i];
-		first_profession TmpProfession;
-		item.Get("name", TmpProfession.name);
-		neb::CJsonObject profession;
-		item.Get("profession", profession);
-		for (auto j(0); j < profession.GetArraySize(); j++)
-		{
-			string profession_name;
-			profession.Get(j, profession_name);
-			TmpProfession.profession.push_back(profession_name);
-		}
-		professions.push_back(TmpProfession);
-	}
-
-	auto profession_positions = m_file_root["profession_position"];
-	for (auto i(0); i < profession_positions.GetArraySize(); i++)
-	{
-		profession_position item;
-		profession_positions[i].Get("name", item.name);
-		profession_positions[i].Get("positionX", item.positionX);
-		profession_positions[i].Get("positionY", item.positionY);
-		professionPositions.push_back(item);
-	}
-
-	neb::CJsonObject pt_root_account;
-	pt_root_account.Parse(readFileIntoString("account_config.json"));
-
-	auto accounts = pt_root_account["accounts"];
-	auto length = accounts.GetArraySize();
-	for (auto i(0); i < length; i++)
-	{
-		const auto item = accounts[i];
-		account_info account;
-		item.Get("qq", account.qq);
-		item.Get("password", account.password);
-		item.Get("status", account.status);
-		this->accounts.push_back(account);
-	}
+	LoadServerConfig();
+	LoadAccountConfig();	
 }
 
 std::string Config::readFileIntoString(char * filename)
@@ -117,6 +57,79 @@ void Config::SaveAccountData()
 	auto str = pt_root.ToString();
 	ofile.write(str.c_str(), str.size());
 	ofile.close();
+}
+
+void Config::LoadAccountConfig()
+{
+	neb::CJsonObject pt_root_account;
+	pt_root_account.Parse(readFileIntoString("account_config.json"));
+
+	auto accounts = pt_root_account["accounts"];
+	auto length = accounts.GetArraySize();
+	for (auto i(0); i < length; i++)
+	{
+		const auto item = accounts[i];
+		account_info account;
+		item.Get("qq", account.qq);
+		item.Get("password", account.password);
+		item.Get("status", account.status);
+		this->accounts.push_back(account);
+	}
+}
+
+void Config::LoadServerConfig()
+{
+	neb::CJsonObject server_root;
+	server_root.Parse(common::GetDefines());
+	server_root.Get("risk_group_type", risk_group_type);
+	server_root.Get("role_name_type", role_name_type);
+	server_root.Get("first_role", first_role);
+	server_root.Get("second_role", second_role);
+	auto gameArea = server_root["area"];
+	for (auto i(0); i < gameArea.GetArraySize(); i++)
+	{
+		const auto item = gameArea[i];
+		area TmpArea;
+		item.Get("name", TmpArea.name);
+		item.Get("group", TmpArea.group);
+		item.Get("index", TmpArea.index);
+		neb::CJsonObject server;
+		item.Get("server", server);
+		for (auto j(0); j < server.GetArraySize(); j++)
+		{
+			string server_name;
+			server.Get(j, server_name);
+			TmpArea.server.push_back(server_name);
+		}
+		game_area.push_back(TmpArea);
+	}
+
+	auto profession = server_root["profession"];
+	for (auto i(0); i < profession.GetArraySize(); i++)
+	{
+		const auto item = profession[i];
+		first_profession TmpProfession;
+		item.Get("name", TmpProfession.name);
+		neb::CJsonObject profession;
+		item.Get("profession", profession);
+		for (auto j(0); j < profession.GetArraySize(); j++)
+		{
+			string profession_name;
+			profession.Get(j, profession_name);
+			TmpProfession.profession.push_back(profession_name);
+		}
+		professions.push_back(TmpProfession);
+	}
+
+	auto profession_positions = server_root["profession_position"];
+	for (auto i(0); i < profession_positions.GetArraySize(); i++)
+	{
+		profession_position item;
+		profession_positions[i].Get("name", item.name);
+		profession_positions[i].Get("positionX", item.positionX);
+		profession_positions[i].Get("positionY", item.positionY);
+		professionPositions.push_back(item);
+	}
 }
 
 account_info::account_info(const string& qq, const string& password, const string& role_name)
