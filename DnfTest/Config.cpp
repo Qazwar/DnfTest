@@ -8,10 +8,18 @@
 
 Config::Config()
 {
-	m_file_root.Parse(readFileIntoString("config.json"));
-	m_file_root.Get("game_path", game_path);
-	m_file_root.Get("ip_address", ip_address);
-	m_file_root.Get("ip_try_times", ip_try_times);
+	neb::CJsonObject file_root;
+	file_root.Parse(readFileIntoString("config.json"));
+	file_root.Get("game_path", game_path);
+	file_root.Get("ip_address", ip_address);
+	file_root.Get("ip_try_times", ip_try_times);
+	file_root.Get("firstRole", firstRole);
+	file_root.Get("firstRoleProfession", firstRoleProfession);
+	file_root.Get("secondRole", secondRole);
+	file_root.Get("secondRoleProfession", secondRoleProfession);
+	file_root.Get("servername", servername);
+	file_root.Get("areaname", areaname);
+	file_root.Get("loginFailTimes", loginFailTimes);
 	LoadServerConfig();
 	LoadAccountConfig();	
 }
@@ -30,9 +38,19 @@ std::string Config::readFileIntoString(char * filename)
 
 void Config::SaveData()
 {
+	neb::CJsonObject file_root;
+	file_root.Add("game_path", this->game_path);
+	file_root.Add("ip_address", this->ip_address);
+	file_root.Add("ip_try_times", this->ip_try_times);
+	file_root.Add("firstRole", this->firstRole);
+	file_root.Add("firstRoleProfession", this->firstRoleProfession);
+	file_root.Add("secondRole", this->secondRole);
+	file_root.Add("secondRoleProfession", this->secondRoleProfession);
+	file_root.Add("servername", this->servername);
+	file_root.Add("areaname", this->areaname);
+	file_root.Add("loginFailTimes", this->loginFailTimes);
 	ofstream ofile("config.json");
-	m_file_root["game_path"] = this->game_path;
-	auto str = m_file_root.ToString();
+	auto str = file_root.ToString();
 	ofile.write(str.c_str(), str.size());
 	ofile.close();
 	SaveAccountData();

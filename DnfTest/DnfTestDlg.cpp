@@ -24,6 +24,7 @@
 
 CDnfTestDlg::CDnfTestDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CDnfTestDlg::IDD, pParent), m_gameControl(NULL)
+	, m_EditRetry(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -53,6 +54,9 @@ void CDnfTestDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_SECOND_ROLE, m_ComboSecondRole);
 	DDX_Control(pDX, IDC_COMBO_FIRST_PROFESSION, m_ComboxFirstProfession);
 	DDX_Control(pDX, IDC_COMBO_SECOND_PROFESSION, m_ComboxSecondProfession);
+	DDX_Text(pDX, IDC_EDIT_LOCAL_IP, m_EditLocalIP);
+	DDX_Control(pDX, IDC_SPIN_RETRY, m_SpinRetry);
+	DDX_Text(pDX, IDC_EDIT_RETRY_TIMES, m_EditRetry);
 }
 
 BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
@@ -70,6 +74,7 @@ BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO_SECOND_ROLE, &CDnfTestDlg::OnCbnSelchangeComboSecondRole)
 	ON_BN_CLICKED(IDC_BUTTON_TEST_PROFESSION, &CDnfTestDlg::OnBnClickedButtonTestProfession)
 	ON_BN_CLICKED(IDC_BUTTON_TEST_AREA, &CDnfTestDlg::OnBnClickedButtonTestArea)
+	ON_EN_CHANGE(IDC_EDIT_RETRY_TIMES, &CDnfTestDlg::OnEnChangeEditRetryTimes)
 END_MESSAGE_MAP()
 
 
@@ -98,6 +103,9 @@ BOOL CDnfTestDlg::OnInitDialog()
 	this->GetDlgItem(IDC_BUTTON1)->ShowWindow(SW_HIDE);
 #endif
 	
+	m_SpinRetry.SetBuddy(GetDlgItem(IDC_EDIT_RETRY_TIMES));
+	m_SpinRetry.SetRange(1, 9);
+	m_SpinRetry.SetPos(config_instance.loginFailTimes);
 	m_gameControl = new CGameControl(this->GetSafeHwnd());
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -177,6 +185,8 @@ void CDnfTestDlg::StartCreateRole(void*param)
 
 void CDnfTestDlg::InitData()
 {
+	m_EditLocalIP = common::stringToCString(config_instance.ip_address);
+	this->UpdateData(FALSE);
 	m_EditGameDir.SetWindowText(common::stringToCString(config_instance.game_path));
 	m_ListAccount.InsertColumn(0,"序列号",LVCFMT_LEFT, 50);
 	m_ListAccount.InsertColumn(1,"角色状态", LVCFMT_LEFT, 100);
@@ -211,34 +221,35 @@ void CDnfTestDlg::InitData()
 	}
 	delete riskGroupArray;
 	riskGroupArray = nullptr;
-	m_ComboArea.AddString(_T("请选择大区"));
 	for (int i(0); i < config_instance.game_area.size(); i++)
 	{
 		m_ComboArea.AddString(common::stringToCString(config_instance.game_area.at(i).name));
 	}
-	m_ComboArea.SetCurSel(0);
+	m_ComboArea.SetCurSel(m_ComboArea.FindStringExact(0, common::stringToCString(config_instance.areaname)));
+	OnCbnSelchangeComboArea();
+	m_ComboServer.SetCurSel(m_ComboServer.FindStringExact(0, common::stringToCString(config_instance.servername)));
 
 	auto firstRoleArray = common::SplitString(config_instance.first_role, ';');
 	for (auto i(0); i < firstRoleArray->GetSize(); i++)
 	{
 		m_ComboFirstRole.AddString(firstRoleArray->GetAt(i));
 	}
-	if(firstRoleArray->GetSize()>0){
-		m_ComboFirstRole.SetCurSel(0);
-		OnCbnSelchangeComboFirstRole();
-	}
+	m_ComboFirstRole.SetCurSel(m_ComboFirstRole.FindStringExact(0, common::stringToCString(config_instance.firstRole)));
+	OnCbnSelchangeComboFirstRole();
+	m_ComboxFirstProfession.SetCurSel(m_ComboxFirstProfession.FindStringExact(0, common::stringToCString(config_instance.firstRoleProfession)));
+
 	delete firstRoleArray;
 	firstRoleArray = nullptr;
-
+	
 	auto secondRoleArray = common::SplitString(config_instance.second_role, ';');
 	for (auto i(0); i < secondRoleArray->GetSize(); i++)
 	{
 		m_ComboSecondRole.AddString(secondRoleArray->GetAt(i));
 	}
-	if(secondRoleArray->GetSize()>0){
-		m_ComboSecondRole.SetCurSel(0);
-		OnCbnSelchangeComboSecondRole();
-	}
+	m_ComboSecondRole.SetCurSel(m_ComboSecondRole.FindStringExact(0, common::stringToCString(config_instance.secondRole)));
+	OnCbnSelchangeComboSecondRole();
+	m_ComboxSecondProfession.SetCurSel(m_ComboxSecondProfession.FindStringExact(0, common::stringToCString(config_instance.secondRoleProfession)));
+
 	delete secondRoleArray;
 	secondRoleArray = nullptr;
 }
@@ -297,10 +308,12 @@ void CDnfTestDlg::OnEnUpdateMfceditbrowseGame()
 void CDnfTestDlg::OnCbnSelchangeComboArea()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	const auto & Index = m_ComboArea.GetCurSel() - 1;
+	const auto & Index = m_ComboArea.GetCurSel();
+	if(config_instance.game_area.size()<=Index){
+		return;
+	}
 	const auto & list_server = config_instance.game_area.at(Index).server;
 	m_ComboServer.ResetContent();
-	m_ComboServer.AddString(_T("请选择"));
 	for (int i(0); i < list_server.size(); i++)
 	{
 		m_ComboServer.AddString(common::stringToCString(list_server.at(i)));
@@ -344,12 +357,22 @@ void CDnfTestDlg::onGameStatusChange(const GameStatus& status, LPARAM lParam)
 
 void CDnfTestDlg::SaveUIInfo()
 {
-	m_ComboFirstRole.GetWindowText(global_instance.firstRole);
-	m_ComboxFirstProfession.GetWindowText(global_instance.firstRoleProfession);
-	m_ComboSecondRole.GetWindowText(global_instance.secondRole);
-	m_ComboxSecondProfession.GetWindowText(global_instance.secondRoleProfession);
-	m_ComboServer.GetWindowText(global_instance.servername);
-	m_ComboArea.GetWindowText(global_instance.areaname);
+	CString csFirstRole, csFistRoleProfession, csSecondRole, csSecondRoleProfession, csServerName, csAreaName;
+	m_ComboFirstRole.GetWindowText(csFirstRole);
+	m_ComboxFirstProfession.GetWindowText(csFistRoleProfession);
+	m_ComboSecondRole.GetWindowText(csSecondRole);
+	m_ComboxSecondProfession.GetWindowText(csSecondRoleProfession);
+	m_ComboServer.GetWindowText(csServerName);
+	m_ComboArea.GetWindowText(csAreaName);
+
+	config_instance.firstRole = common::CStringTostring(csFirstRole);
+	config_instance.firstRoleProfession = common::CStringTostring(csFistRoleProfession);
+	config_instance.secondRole = common::CStringTostring(csSecondRole);
+	config_instance.secondRoleProfession = common::CStringTostring(csSecondRoleProfession);
+	config_instance.servername = common::CStringTostring(csServerName);
+	config_instance.areaname = common::CStringTostring(csAreaName);
+	config_instance.loginFailTimes = m_EditRetry;
+	config_instance.ip_address = m_EditLocalIP;
 }
 
 void CDnfTestDlg::OnBnClickedButtonStop()
@@ -417,5 +440,18 @@ void CDnfTestDlg::OnBnClickedButtonTestArea()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	SaveUIInfo();
+	config_instance.SaveData();
 	m_gameControl->SelectArea();
+}
+
+
+void CDnfTestDlg::OnEnChangeEditRetryTimes()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	m_EditRetry = m_SpinRetry.GetPos();
 }

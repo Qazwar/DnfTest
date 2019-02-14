@@ -2,7 +2,6 @@
 #include <Nb30.h>
 #include "HttpClient.h"
 #include "Global.h"
-#include "CJsonObject\CJsonObject.hpp"
 
 #pragma comment(lib,"netapi32.lib")
 
@@ -137,6 +136,70 @@ namespace common{
 		pt_root.Get("data", pt_data);
 		pt_data.Get("status", status);
 		return status;
+	}
+	char* UnicodeToUtf8(const wchar_t* unicode)
+	{
+		int len;
+		len = WideCharToMultiByte(CP_UTF8, 0, unicode, -1, NULL, 0, NULL, NULL);
+		char *szUtf8 = (char*)malloc(len + 1);
+		memset(szUtf8, 0, len + 1);
+		WideCharToMultiByte(CP_UTF8, 0, unicode, -1, szUtf8, len, NULL, NULL);
+		return szUtf8;
+	}
+
+#define IS_NUMBER(c)        ((c) && (((c) >= '0' && (c) <= '9') || ((c) >= 'a' && (c) <= 'f') || ((c) >= 'A' && (c) <= 'F')))
+
+	CString TranslateString(const CString &csText)
+	{
+		wstring ret;
+		USES_CONVERSION; 
+		LPWSTR pwStr=new wchar_t[csText.GetLength()+1]; 
+		wcscpy(pwStr,T2W((LPCTSTR)csText));
+		LPCWSTR curChar = pwStr;
+
+		while (*curChar)
+		{
+			if (curChar[0] == L'\\' &&
+				(curChar[1] == L'u' || curChar[1] == L'U') &&
+				IS_NUMBER(curChar[2]) &&
+				IS_NUMBER(curChar[3]) &&
+				IS_NUMBER(curChar[4]) &&
+				IS_NUMBER(curChar[5]))
+			{
+				wchar_t hex[8] = {'0', 'x'};
+				hex[2] = curChar[2];
+				hex[3] = curChar[3];
+				hex[4] = curChar[4];
+				hex[5] = curChar[5];
+				int i;
+				StrToIntExW(hex, STIF_SUPPORT_HEX, &i);
+				ret += (wchar_t)i;
+
+				curChar += 6;
+			}
+			else
+			{
+				ret += (wchar_t)*curChar;
+				curChar++;
+			}
+		}
+		if(pwStr){
+			delete pwStr;
+			pwStr = NULL;
+		}
+		return CString(ret.c_str());
+	}
+
+	string GetDefines()
+	{
+		CHttpClient client;
+		string resp;
+		client.HttpGet("http://47.106.111.213:9050/dnf/config/defines", NULL, NULL, resp);
+		neb::CJsonObject pt_root;
+		pt_root.Parse(common::CStringTostring(TranslateString(common::stringToCString(resp))));
+		neb::CJsonObject pt_data;
+		pt_root.Get("data", pt_data);
+		return pt_data.ToString();
 	}
 
 }

@@ -69,4 +69,8 @@ public:
 	CComboBox m_ComboxSecondProfession;
 	afx_msg void OnBnClickedButtonTestProfession();
 	afx_msg void OnBnClickedButtonTestArea();
+	CString m_EditLocalIP;
+	CSpinButtonCtrl m_SpinRetry;
+	afx_msg void OnEnChangeEditRetryTimes();
+	int m_EditRetry;
 };

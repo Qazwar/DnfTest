@@ -49,13 +49,19 @@ public:
 	vector<account_info> accounts;
 	vector<first_profession> professions;
 	vector<profession_position> professionPositions;
+	string firstRole;
+	string firstRoleProfession;
+	string secondRole;
+	string secondRoleProfession;
+	string servername;
+	string areaname;
+	int loginFailTimes;//µ«¬º ß∞‹÷ÿ ‘¥Œ ˝
 	void SaveData();
 	void SaveAccountData();
 private:
 	string readFileIntoString(char * filename);
 	void LoadServerConfig();
 	void LoadAccountConfig();
-	neb::CJsonObject m_file_root;
 	  
 };  
 #define config_instance Config::get_mutable_instance()

@@ -42,9 +42,11 @@ void CGameControl::Stop()
 
 bool CGameControl::GameProcess()
 {
+	config_instance.SaveData();
 	Sleep(1000);
 	bool bSuccess = false;
-	while(true){
+	int tryTimes = 0;
+	while(tryTimes++ <= config_instance.ip_try_times){
 		if (!StartGame())
 		{
 			break;
@@ -67,6 +69,11 @@ bool CGameControl::GameProcess()
 		}
 		KillProcess("Client.exe");
 		KillProcess("DNF.exe");
+	}
+	if(!bSuccess){
+		KillProcess("Client.exe");
+		KillProcess("DNF.exe");
+		return FindCurrentAccountIndex();
 	}
 	if(!CreateRole()){
 		return FindCurrentAccountIndex();;
@@ -156,7 +163,7 @@ bool CGameControl::InputCodes()
 	}
 	if(bVerficationCode){
 		int iTryTimes = 0;
-		while(iTryTimes++<=3){
+		while(iTryTimes++<=config_instance.loginFailTimes){
 			int verficationCodeTimes = 0;//验证码重试4次
 			while(FindImageInLoginWnd("VerificationCode.png")&&verficationCodeTimes++<=4){
 				if(SaveVerificationCodeImage())
@@ -182,7 +189,7 @@ bool CGameControl::InputCodes()
 				InputPassword();
 			}
 		}
-		if(iTryTimes==4){
+		if(iTryTimes==config_instance.loginFailTimes){
 			return false;
 		}
 	}
@@ -219,7 +226,7 @@ bool CGameControl::CreateRole()
 	}
 	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE, NULL);
 	CreateARole();
-	if(global_instance.secondRole.Compare(_T("不创建角色"))!=0){
+	if(config_instance.secondRole.compare("不创建角色")!=0){
 		CreateARole();
 	}
 	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE_DONE, NULL);
@@ -720,12 +727,12 @@ void CGameControl::SelectProfession()
 	srand((int)time(0));
 	auto positionX = 0;
 	auto positionY = 0;
-	auto RoleName = common::CStringTostring(global_instance.firstRole);
-	auto professionName = common::CStringTostring(global_instance.firstRoleProfession);
+	auto RoleName = config_instance.firstRole;
+	auto professionName = config_instance.firstRoleProfession;
 	if (m_RoleIndex==1)
 	{
-		RoleName = common::CStringTostring(global_instance.secondRole);
-		professionName = common::CStringTostring(global_instance.secondRoleProfession);
+		RoleName = config_instance.secondRole;
+		professionName = config_instance.secondRoleProfession;
 	}
 	for (auto i(0); i < config_instance.professionPositions.size(); i++)
 	{
@@ -760,11 +767,11 @@ void CGameControl::SelectProfession()
 void CGameControl::SelectArea()
 {
 	srand((int)time(0));
-	auto nm = common::CStringTostring(global_instance.servername);
+	auto nm = config_instance.servername;
 	for(auto i(0); i < config_instance.game_area.size(); i++)
 	{
 		const auto& areaInfo = config_instance.game_area.at(i);
-		if(areaInfo.name == common::CStringTostring(global_instance.areaname))
+		if(areaInfo.name == config_instance.areaname)
 		{
 			if(areaInfo.group == "Telecom"){
 				CKeyMouMng::Ptr()->MouseMoveAndClick(222+rand()%25, 119+rand()%60);  //点击电信
@@ -777,7 +784,7 @@ void CGameControl::SelectArea()
 			Sleep(800);
 			for(auto j(0); j < areaInfo.server.size(); j++)
 			{
-				if(areaInfo.server.at(j) == common::CStringTostring(global_instance.servername))
+				if(areaInfo.server.at(j) == config_instance.servername)
 				{
 					CKeyMouMng::Ptr()->MouseMoveAndClick(280+rand()%90+(j%5)*123, 384+rand()%25+(j/5)*52);  //点击区名
 					Sleep(800);
