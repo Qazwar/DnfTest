@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include <Nb30.h>
-#include "HttpClient.h"
 #include "Global.h"
 #include "Config.h"
+#include "CurlInterface.h"
 
 #pragma comment(lib,"netapi32.lib")
 
@@ -114,9 +114,9 @@ namespace common{
 
 	int QueryUser()
 	{
-		CHttpClient client;
+		CCurlInterface client;
 		string resp;
-		client.HttpGet("http://47.106.111.213:9050/dnf/user/query",(string("mac:")+global_instance.getMac()).c_str(), NULL, resp);
+		client.getData("http://47.106.111.213:9050/dnf/user/query", resp, &(string("mac:")+global_instance.getMac()), NULL);
 		neb::CJsonObject pt_root;
 		pt_root.Parse(resp);
 		int status = 0;
@@ -127,9 +127,9 @@ namespace common{
 
 	int RegisterUser()
 	{
-		CHttpClient client;
+		CCurlInterface client;
 		string resp;
-		client.HttpPost("http://47.106.111.213:9050/dnf/user/register",(string("mac:")+global_instance.getMac()).c_str(), NULL, resp);
+		client.postData("http://47.106.111.213:9050/dnf/user/register", resp,&(string("mac:")+global_instance.getMac()), NULL);
 		neb::CJsonObject pt_root;
 		pt_root.Parse(resp);
 		int status = 0;
@@ -193,9 +193,9 @@ namespace common{
 
 	string GetDefines()
 	{
-		CHttpClient client;
+		CCurlInterface client;
 		string resp;
-		client.HttpGet("http://47.106.111.213:9050/dnf/config/defines", NULL, NULL, resp);
+		client.getData("http://47.106.111.213:9050/dnf/config/defines", resp,NULL, NULL );
 		neb::CJsonObject pt_root;
 		pt_root.Parse(common::CStringTostring(TranslateString(common::stringToCString(resp))));
 		neb::CJsonObject pt_data;
@@ -205,10 +205,23 @@ namespace common{
 
 	void PostConfig(const CString& data)
 	{
-		CHttpClient client;
+		CCurlInterface client;
 		string resp;
-		client.HttpPost("http://127.0.0.1:9091/dnf/config/user",(string("mac:")+global_instance.getMac()).c_str(), 
-			data, resp);
+		client.postData("http://47.106.111.213:9050/dnf/config/user", resp,&(string("mac:")+global_instance.getMac()), 
+			&common::CStringTostring(data));
 		return;
 	}
+
+	string GetConfig()
+	{
+		CCurlInterface client;
+		string resp;
+		client.getData("http://47.106.111.213:9050/dnf/config/user", resp, &(string("mac:")+global_instance.getMac()), NULL);
+		neb::CJsonObject pt_root;
+		pt_root.Parse(common::CStringTostring(TranslateString(common::stringToCString(resp))));
+		neb::CJsonObject pt_data;
+		pt_root.Get("data", pt_data);
+		return pt_data.ToString();
+	}
+
 }

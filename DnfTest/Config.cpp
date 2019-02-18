@@ -9,17 +9,20 @@
 Config::Config()
 {
 	neb::CJsonObject file_root;
-	file_root.Parse(readFileIntoString("config.json"));
-	file_root.Get("game_path", game_path);
-	file_root.Get("ip_address", ip_address);
-	file_root.Get("ip_try_times", ip_try_times);
-	file_root.Get("firstRole", firstRole);
-	file_root.Get("firstRoleProfession", firstRoleProfession);
-	file_root.Get("secondRole", secondRole);
-	file_root.Get("secondRoleProfession", secondRoleProfession);
-	file_root.Get("servername", servername);
-	file_root.Get("areaname", areaname);
-	file_root.Get("loginFailTimes", loginFailTimes);
+	file_root.Parse(common::GetConfig());
+	neb::CJsonObject configData;
+	file_root.Get("config", configData);
+	
+	configData.Get("game_path", game_path);
+	configData.Get("ip_address", ip_address);
+	configData.Get("ip_try_times", ip_try_times);
+	configData.Get("firstRole", firstRole);
+	configData.Get("firstRoleProfession", firstRoleProfession);
+	configData.Get("secondRole", secondRole);
+	configData.Get("secondRoleProfession", secondRoleProfession);
+	configData.Get("servername", servername);
+	configData.Get("areaname", areaname);
+	configData.Get("loginFailTimes", loginFailTimes);
 	LoadServerConfig();
 	LoadAccountConfig();	
 }
@@ -49,14 +52,10 @@ void Config::SaveData()
 	root.Add("servername", this->servername);
 	root.Add("areaname", this->areaname);
 	root.Add("loginFailTimes", this->loginFailTimes);
-	ofstream ofile("config.json");
-	auto str = str.ToString();
-	ofile.write(str.c_str(), str.size());
-	ofile.close();
 	SaveAccountData();
 	neb::CJsonObject base;
 	base.Add("config", root);
-	common::PostConfig(common::stringToCString(str.ToString()));
+	common::PostConfig(common::stringToCString(base.ToString()));
 }
 
 void Config::SaveAccountData()

@@ -16,5 +16,5 @@ namespace common{
 	int RegisterUser();
 	string GetDefines();
 	void PostConfig(const CString& data);
-
+	string GetConfig();
 }

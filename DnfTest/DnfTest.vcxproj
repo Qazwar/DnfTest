@@ -200,13 +200,13 @@
     <ClInclude Include="Common\singleton.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="CurlInterface.h" />
     <ClInclude Include="DD.h" />
     <ClInclude Include="DialogRegister.h" />
     <ClInclude Include="DnfTest.h" />
     <ClInclude Include="DnfTestDlg.h" />
     <ClInclude Include="GameControl.h" />
     <ClInclude Include="Global.h" />
-    <ClInclude Include="HttpClient.h" />
     <ClInclude Include="KeyMouMng.h" />
     <ClInclude Include="MyLog.h" />
     <ClInclude Include="Resource.h" />
@@ -227,13 +227,13 @@
     </ClCompile>
     <ClCompile Include="CommonStatic.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="CurlInterface.cpp" />
     <ClCompile Include="DD.cpp" />
     <ClCompile Include="DialogRegister.cpp" />
     <ClCompile Include="DnfTest.cpp" />
     <ClCompile Include="DnfTestDlg.cpp" />
     <ClCompile Include="GameControl.cpp" />
     <ClCompile Include="Global.cpp" />
-    <ClCompile Include="HttpClient.cpp" />
     <ClCompile Include="KeyMouMng.cpp" />
     <ClCompile Include="MyLog.cpp" />
     <ClCompile Include="stdafx.cpp">

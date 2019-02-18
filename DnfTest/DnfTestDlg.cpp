@@ -9,7 +9,6 @@
 #include "GameControl.h"
 #include "Config.h"
 #include "Global.h"
-#include "HttpClient.h"
 #include "DialogRegister.h"
 
 #ifdef _DEBUG
