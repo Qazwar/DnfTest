@@ -2,6 +2,7 @@
 #include <Nb30.h>
 #include "HttpClient.h"
 #include "Global.h"
+#include "Config.h"
 
 #pragma comment(lib,"netapi32.lib")
 
@@ -202,4 +203,12 @@ namespace common{
 		return pt_data.ToString();
 	}
 
+	void PostConfig(const CString& data)
+	{
+		CHttpClient client;
+		string resp;
+		client.HttpPost("http://127.0.0.1:9091/dnf/config/user",(string("mac:")+global_instance.getMac()).c_str(), 
+			data, resp);
+		return;
+	}
 }

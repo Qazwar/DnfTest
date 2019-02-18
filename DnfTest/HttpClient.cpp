@@ -75,13 +75,13 @@ int CHttpClient::ExecuteRequest(LPCTSTR strMethod, LPCTSTR strUrl,LPCTSTR strHea
         ////set web server option
         //m_pFile->SetOption(INTERNET_OPTION_SECURITY_FLAGS, dwFlags);
  
-        m_pFile->AddRequestHeaders("Accept: *,*/*");
-        m_pFile->AddRequestHeaders("Accept-Language: zh-cn");
-        m_pFile->AddRequestHeaders("Content-Type: application/x-www-form-urlencoded");
-        m_pFile->AddRequestHeaders("Accept-Encoding: gzip, deflate");
- 
-        m_pFile->SendRequest((LPCTSTR)strHeaders, strHeaders == NULL ? 0 : _tcslen(strHeaders), (LPVOID)(LPCTSTR)strPostData, strPostData == NULL ? 0 : _tcslen(strPostData));
- 
+        m_pFile->AddRequestHeaders("Accept: */*,application/json");//accept请求报头域，表示客户端接受哪些类型的信息  
+        m_pFile->AddRequestHeaders("Accept-Charset:UTF8");  
+        m_pFile->AddRequestHeaders("Accept-Language: zh-cn;q=0.8,en;q=0.6,ja;q=0.4");  
+        m_pFile->AddRequestHeaders("Content-Type:application/json");//content为实体报头域，格式及编码 
+
+		m_pFile->SendRequest((LPCTSTR)strHeaders, strHeaders == NULL ? 0 : _tcslen(strHeaders), (LPVOID)strPostData, strPostData == NULL ? 0 : _tcslen(strPostData));
+
         char szChars[BUFFER_SIZE + 1] = {0};
         string strRawResponse = "";
         UINT nReaded = 0;
@@ -131,7 +131,7 @@ int CHttpClient::HttpGet(LPCTSTR strUrl,LPCTSTR strHeaders, LPCTSTR strPostData,
     return ExecuteRequest("GET", strUrl, strHeaders, strPostData, strResponse);
 }
  
-int CHttpClient::HttpPost(LPCTSTR strUrl,LPCTSTR strHeaders, LPCTSTR strPostData, string &strResponse)
+int CHttpClient::HttpPost(LPCTSTR strUrl, LPCTSTR strHeaders, LPCTSTR strPostData, string &strResponse)
 {
-    return ExecuteRequest("POST", strUrl, strHeaders,strPostData, strResponse);
+	return ExecuteRequest("POST", strUrl, strHeaders,strPostData, strResponse);
 }

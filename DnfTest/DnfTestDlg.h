@@ -55,7 +55,7 @@ public:
 private:
 	CGameControl *m_gameControl;
 	void onGameStatusChange(const GameStatus& status, LPARAM lParam = NULL);
-	void SaveUIInfo();//保存ui信息，用于创建角色
+	bool SaveUIInfo();//保存ui信息，用于创建角色
 public:
 	CButton m_ButtonStart;
 	afx_msg void OnBnClickedButtonStop();

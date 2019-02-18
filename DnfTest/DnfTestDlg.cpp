@@ -101,6 +101,8 @@ BOOL CDnfTestDlg::OnInitDialog()
 #ifndef DEBUG
 	this->GetDlgItem(IDC_BUTTON_CREATE_ROLE)->ShowWindow(SW_HIDE);
 	this->GetDlgItem(IDC_BUTTON1)->ShowWindow(SW_HIDE);
+	this->GetDlgItem(IDC_BUTTON_TEST_PROFESSION)->ShowWindow(SW_HIDE);
+	this->GetDlgItem(IDC_BUTTON_TEST_AREA)->ShowWindow(SW_HIDE);
 #endif
 	
 	m_SpinRetry.SetBuddy(GetDlgItem(IDC_EDIT_RETRY_TIMES));
@@ -154,7 +156,9 @@ void CDnfTestDlg::OnBnClickedButtonStart()
 		AfxMessageBox("用户未授权");
 		return;
 	}
-	SaveUIInfo();
+	if(!SaveUIInfo()){
+		return;
+	}
 	_beginthread(CDnfTestDlg::StartProcess, NULL, this);
 }
 
@@ -236,7 +240,9 @@ void CDnfTestDlg::InitData()
 	}
 	m_ComboFirstRole.SetCurSel(m_ComboFirstRole.FindStringExact(0, common::stringToCString(config_instance.firstRole)));
 	OnCbnSelchangeComboFirstRole();
-	m_ComboxFirstProfession.SetCurSel(m_ComboxFirstProfession.FindStringExact(0, common::stringToCString(config_instance.firstRoleProfession)));
+	if(config_instance.firstRoleProfession.size()!=0){
+		m_ComboxFirstProfession.SetCurSel(m_ComboxFirstProfession.FindStringExact(0, common::stringToCString(config_instance.firstRoleProfession)));
+	}
 
 	delete firstRoleArray;
 	firstRoleArray = nullptr;
@@ -248,7 +254,9 @@ void CDnfTestDlg::InitData()
 	}
 	m_ComboSecondRole.SetCurSel(m_ComboSecondRole.FindStringExact(0, common::stringToCString(config_instance.secondRole)));
 	OnCbnSelchangeComboSecondRole();
-	m_ComboxSecondProfession.SetCurSel(m_ComboxSecondProfession.FindStringExact(0, common::stringToCString(config_instance.secondRoleProfession)));
+	if(config_instance.secondRoleProfession.size()!=0){
+		m_ComboxSecondProfession.SetCurSel(m_ComboxSecondProfession.FindStringExact(0, common::stringToCString(config_instance.secondRoleProfession)));
+	}
 
 	delete secondRoleArray;
 	secondRoleArray = nullptr;
@@ -285,12 +293,6 @@ void CDnfTestDlg::OnEnChangeMfceditbrowseGame()
 	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
 
 	// TODO:  在此添加控件通知处理程序代码
-	CString Text;
-	m_EditGameDir.GetWindowText(Text);
-	if(Text.Compare(common::stringToCString(config_instance.game_path))!=0){
-		config_instance.game_path = common::CStringTostring(Text);
-		config_instance.SaveData();
-	}
 }
 
 
@@ -355,9 +357,10 @@ void CDnfTestDlg::onGameStatusChange(const GameStatus& status, LPARAM lParam)
 }
 
 
-void CDnfTestDlg::SaveUIInfo()
+bool CDnfTestDlg::SaveUIInfo()
 {
-	CString csFirstRole, csFistRoleProfession, csSecondRole, csSecondRoleProfession, csServerName, csAreaName;
+	CString csGamePath, csFirstRole, csFistRoleProfession, csSecondRole, csSecondRoleProfession, csServerName, csAreaName;
+	m_EditGameDir.GetWindowText(csGamePath);
 	m_ComboFirstRole.GetWindowText(csFirstRole);
 	m_ComboxFirstProfession.GetWindowText(csFistRoleProfession);
 	m_ComboSecondRole.GetWindowText(csSecondRole);
@@ -365,6 +368,7 @@ void CDnfTestDlg::SaveUIInfo()
 	m_ComboServer.GetWindowText(csServerName);
 	m_ComboArea.GetWindowText(csAreaName);
 
+	config_instance.game_path = common::CStringTostring(csGamePath);
 	config_instance.firstRole = common::CStringTostring(csFirstRole);
 	config_instance.firstRoleProfession = common::CStringTostring(csFistRoleProfession);
 	config_instance.secondRole = common::CStringTostring(csSecondRole);
@@ -373,6 +377,27 @@ void CDnfTestDlg::SaveUIInfo()
 	config_instance.areaname = common::CStringTostring(csAreaName);
 	config_instance.loginFailTimes = m_EditRetry;
 	config_instance.ip_address = m_EditLocalIP;
+	if(config_instance.game_path.size()==0){
+		AfxMessageBox("游戏路径不能为空");
+		return false;
+	}
+	if(config_instance.ip_address.size()==0){
+		AfxMessageBox("本地ip不能为空");
+		return false;
+	}
+	if(config_instance.areaname.size()==0){
+		AfxMessageBox("大区不能为空");
+		return false;
+	}
+	if(config_instance.firstRole.size()==0){
+		AfxMessageBox("第一角色不能为空");
+		return false;
+	}
+	if(config_instance.secondRole.size()==0){
+		AfxMessageBox("第二角色不能为空");
+		return false;
+	}
+	return true;
 }
 
 void CDnfTestDlg::OnBnClickedButtonStop()

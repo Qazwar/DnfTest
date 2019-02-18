@@ -38,22 +38,25 @@ std::string Config::readFileIntoString(char * filename)
 
 void Config::SaveData()
 {
-	neb::CJsonObject file_root;
-	file_root.Add("game_path", this->game_path);
-	file_root.Add("ip_address", this->ip_address);
-	file_root.Add("ip_try_times", this->ip_try_times);
-	file_root.Add("firstRole", this->firstRole);
-	file_root.Add("firstRoleProfession", this->firstRoleProfession);
-	file_root.Add("secondRole", this->secondRole);
-	file_root.Add("secondRoleProfession", this->secondRoleProfession);
-	file_root.Add("servername", this->servername);
-	file_root.Add("areaname", this->areaname);
-	file_root.Add("loginFailTimes", this->loginFailTimes);
+	neb::CJsonObject root;
+	root.Add("game_path", this->game_path);
+	root.Add("ip_address", this->ip_address);
+	root.Add("ip_try_times", this->ip_try_times);
+	root.Add("firstRole", this->firstRole);
+	root.Add("firstRoleProfession", this->firstRoleProfession);
+	root.Add("secondRole", this->secondRole);
+	root.Add("secondRoleProfession", this->secondRoleProfession);
+	root.Add("servername", this->servername);
+	root.Add("areaname", this->areaname);
+	root.Add("loginFailTimes", this->loginFailTimes);
 	ofstream ofile("config.json");
-	auto str = file_root.ToString();
+	auto str = str.ToString();
 	ofile.write(str.c_str(), str.size());
 	ofile.close();
 	SaveAccountData();
+	neb::CJsonObject base;
+	base.Add("config", root);
+	common::PostConfig(common::stringToCString(str.ToString()));
 }
 
 void Config::SaveAccountData()
