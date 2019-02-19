@@ -96,8 +96,8 @@ public:
 	};
 	~CKeyMouMng(){};
 public:
-	static BOOL MouseMove(LONG dx, LONG dy, USHORT Flags = MOUSE_MOVE_ABSOLUTE);
-	static BOOL MouseButtonEx(USHORT ButtonFlags);
+	BOOL MouseMove(LONG dx, LONG dy, USHORT Flags = MOUSE_MOVE_ABSOLUTE);
+	BOOL MouseButtonEx(USHORT ButtonFlags);
 	void MouseLClick();
 	BOOL KeyboardButton(BYTE VirtualKey, BYTE Flags);
 	void DirKeyDown(BYTE key);
@@ -106,9 +106,9 @@ public:
 
 	void MouseMoveAndClick(int nX,int nY);
 	void MouseMoveInLoginWnd(int nX,int nY);
-	void InputCharByKeyBoard(const char* szBuffer);
+	void InputString(const string& buffer);
 	void MouseMoveAndClickGameWnd(int nX,int nY);
-	void InputPassword(char* szBuffer);
+	void InputByDD(const string& buffer);
 	int getKeyCode(const char & ch);
 public:
 	CDD dd ;  // DD ¿‡ 

@@ -1,19 +1,16 @@
 #pragma once
-#define CURL_STATICLIB
 
 #include "curl\curl.h"
 
 #ifdef _DEBUG
-#pragma comment(lib,"libcurl-d_imp.lib")
+#pragma comment(lib, "curl/libcurl_lib/libcurl_MTd_VS2010.lib")
+#pragma comment(lib, "curl/openssl_lib/ssleay32_MTd_VS2010.lib")
+#pragma comment(lib, "curl/openssl_lib/libeay32_MTd_VS2010.lib")
 #else
-#pragma comment(lib,"libcurl.lib")
+#pragma comment(lib, "curl/libcurl_lib/libcurl_MT_VS2010.lib")
+#pragma comment(lib, "curl/openssl_lib/ssleay32_MT_VS2010.lib")
+#pragma comment(lib, "curl/openssl_lib/libeay32_MT_VS2010.lib")
 #endif
-
-#pragma comment ( lib, "ws2_32.lib" )
-#pragma comment ( lib, "winmm.lib" )
-#pragma comment ( lib, "wldap32.lib" )
-#pragma comment(lib, "Advapi32.lib")
-
 
 #include "stdafx.h"
 #include <iostream>

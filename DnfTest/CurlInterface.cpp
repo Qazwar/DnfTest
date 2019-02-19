@@ -62,7 +62,6 @@ CCurlInterface::CCurlInterface()
 
 int CCurlInterface::httpRequest( const string& strUrl, string &strResponse, const string* strHeader, const string* data)
 {
-	{
 		CURL *curl = curl = curl_easy_init();
 		CURLcode res;
 		std::stringstream out;//HTTP报文头  
@@ -87,6 +86,8 @@ int CCurlInterface::httpRequest( const string& strUrl, string &strResponse, cons
 				curl_easy_setopt(curl, m_Option, 1);
 			}
 			// 设置要POST的JSON数据
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false); // if want to use https  
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false); // set peer and host verify false  
 			curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonout.c_str());
 			curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, jsonout.size());//设置上传json串长度,这个设置可以忽略
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &CCurlInterface::write_data);//设置回调函数
@@ -94,12 +95,17 @@ int CCurlInterface::httpRequest( const string& strUrl, string &strResponse, cons
 			res = curl_easy_perform(curl);//执行
 			curl_slist_free_all(headers); /* free the list again */
 			strResponse = out.str();//返回请求值 
+			auto Pos = strResponse.find('{');
+			auto LastPos = strResponse.rfind('}');
+			if (Pos!=-1&&LastPos!=-1)
+			{
+				strResponse = strResponse.substr(Pos, LastPos-Pos+1);
+			}
 			/* always cleanup */ 
 			curl_easy_cleanup(curl);
 		} 
 
 		return 0;
-	}
 }
 
 int CCurlInterface::getData( const string& strUrl, string &strResponse, const string* strHeader, const string* data)
@@ -131,14 +137,13 @@ int CCurlInterface::getData( const string& strUrl, string &strResponse, const st
 		// start req  
 		res = curl_easy_perform(curl);
 		strResponse = out.str();//返回请求值
-		auto Pos = strResponse.find('\{');
-		auto LastPos = strResponse.rfind('\}');
+		auto Pos = strResponse.find('{');
+		auto LastPos = strResponse.rfind('}');
 		if (Pos!=-1&&LastPos!=-1)
 		{
 			strResponse = strResponse.substr(Pos, LastPos-Pos+1);
 		}
-	}  
-	// release curl  
-	curl_easy_cleanup(curl);  
+		curl_easy_cleanup(curl);  
+	}
 	return res;  
 }

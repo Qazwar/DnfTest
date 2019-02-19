@@ -6,8 +6,10 @@ public:
 	CGlobal(void);
 	~CGlobal(void);
 	string getMac();
+	ControllerType getControllerType();
 private:
 	string mac;
+	ControllerType control;
 };
 #define global_instance CGlobal::get_mutable_instance()
 

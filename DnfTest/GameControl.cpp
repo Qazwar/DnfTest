@@ -188,7 +188,7 @@ bool CGameControl::InputCodes()
 					{
 						CString result = strRe.Left(pos);
 						CKeyMouMng::Ptr()->MouseMoveAndClick(479,365);  //点击验证码编辑框
-						CKeyMouMng::Ptr()->InputCharByKeyBoard(common::CStringTostring(result).c_str());
+						CKeyMouMng::Ptr()->InputString(common::CStringTostring(result));
 						CKeyMouMng::Ptr()->KeyboardButtonEx(VK_RETURN);
 						Sleep(500);
 						CKeyMouMng::Ptr()->MouseMoveAndClick(550,457);  //点击验证码确定
@@ -224,7 +224,7 @@ bool CGameControl::CreateRole()
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(627,432);  //点击冒险团编辑框
 		const auto groupName = CreateName(16);
 		LOG_DEBUG<<"【冒险团名字】"<<groupName.c_str();
-		CKeyMouMng::Ptr()->InputCharByKeyBoard(groupName.c_str());
+		CKeyMouMng::Ptr()->InputString(groupName);
 		CKeyMouMng::Ptr()->KeyboardButtonEx(VK_RETURN);
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(519,642);  //点击设置
 		Sleep(500);
@@ -284,7 +284,7 @@ void CGameControl::InputAccount()
 	}
 	const auto& account = config_instance.accounts.at(this->m_Index);
 	//先输入用户名
-	CKeyMouMng::Ptr()->InputCharByKeyBoard(account.qq.c_str());
+	CKeyMouMng::Ptr()->InputString(account.qq);
 	CKeyMouMng::Ptr()->KeyboardButtonEx(VK_TAB);
 	LOG_DEBUG<<"账号 "<<account.qq.c_str()<<" 密码 "<<account.password.c_str();
 	InputPassword();
@@ -294,7 +294,7 @@ void CGameControl::InputPassword()
 {
 	Sleep(1000);
 	const auto& account = config_instance.accounts.at(this->m_Index);
-	CKeyMouMng::Ptr()->InputPassword( const_cast<char*>(account.password.c_str()));
+	CKeyMouMng::Ptr()->InputString(account.password);
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClick(1044,482);  //点击登录
 }
@@ -327,7 +327,7 @@ bool CGameControl::CreateARole()
 		account.status = STATUS_SUCCESS;
 		config_instance.SaveData();
 		LOG_DEBUG<<"【角色名字】"<<name.c_str();
-		CKeyMouMng::Ptr()->InputCharByKeyBoard(name.c_str());
+		CKeyMouMng::Ptr()->InputString(name);
 		CKeyMouMng::Ptr()->KeyboardButtonEx(VK_RETURN);
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(910,428);  //点击检测重复
 		LOG_DEBUG<<"点击检测重复 "<<name.c_str();

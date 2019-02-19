@@ -61,7 +61,7 @@ void CVPNControler::MouseMoveAndClick(int nX,int nY)
 	if (hLoginWnd)
 	{
 		::GetWindowRect(hLoginWnd, &LoginWndRect);
-		CKeyMouMng::MouseMove(LoginWndRect.left+nX,LoginWndRect.top+nY);
+		CKeyMouMng::Ptr()->MouseMove(LoginWndRect.left+nX,LoginWndRect.top+nY);
 	}
-	CKeyMouMng::MouseButtonEx(MOUSE_LEFT_BUTTON);
+	CKeyMouMng::Ptr()->MouseButtonEx(MOUSE_LEFT_BUTTON);
 }

@@ -4,6 +4,7 @@
 
 CGlobal::CGlobal(void)
 {
+	control = DD;
 }
 
 
@@ -17,4 +18,9 @@ string CGlobal::getMac()
 		mac = common::getMAC();
 	}
 	return mac;
+}
+
+ControllerType CGlobal::getControllerType()
+{
+	return control;
 }

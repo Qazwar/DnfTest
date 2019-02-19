@@ -28,7 +28,13 @@ BOOL CKeyMouMng::MouseMove(LONG dx, LONG dy, USHORT Flags)
 	default:
 		return FALSE;
 	}
-	SetCursorPos(OldP.x,OldP.y);
+	if(global_instance.getControllerType()==CONTROL_WINDOWS_MESSAGE){
+		SetCursorPos(OldP.x,OldP.y);
+	}else if (global_instance.getControllerType()== DD)
+	{
+		LOG_DEBUG<<"dd mouse move";
+		dd.DD_mov(OldP.x, OldP.y);
+	}
 	return TRUE;
 }
 
@@ -64,7 +70,18 @@ BOOL CKeyMouMng::MouseButtonEx(USHORT ButtonFlags)
 //鼠标点击
 void CKeyMouMng::MouseLClick()
 {
-	MouseButtonEx(MOUSE_LEFT_BUTTON);
+	if(global_instance.getControllerType()==CONTROL_WINDOWS_MESSAGE){
+		MouseButtonEx(MOUSE_LEFT_BUTTON);
+	}
+	else if (global_instance.getControllerType() == DD)
+	{
+		dd.DD_btn(2);
+		dd.DD_btn(1);         // 1左下 2左上 4右下 8右上
+		Sleep(200);
+		dd.DD_btn(2);
+		Sleep(50);
+		LOG_DEBUG<<"dd button click ";
+	}
 }
 
 void CKeyMouMng::MouseMoveInLoginWnd(int nX,int nY)
@@ -133,36 +150,37 @@ void CKeyMouMng::DirKeyUp(BYTE key)
 	KeyboardButton(key, DIR_KEY_UP);
 }
 
-void CKeyMouMng::InputCharByKeyBoard(const char* szBuffer)
+void CKeyMouMng::InputString(const string& buffer)
 {
-	for (int i = 0;i < lstrlen(szBuffer);i++ )
+	if(global_instance.getControllerType()== CONTROL_WINDOWS_MESSAGE){
+	for (int i = 0;i < buffer.size();i++ )
 	{
 		WAIT_STOP_RETURN(100);
-		if ( szBuffer[i] >= 'a' && szBuffer[i] <= 'z')
+		if ( buffer.at(i) >= 'a' && buffer.at(i) <= 'z')
 		{
-			KeyboardButtonEx(szBuffer[i]-32);
+			KeyboardButtonEx(buffer.at(i)-32);
 		}
-		else if( szBuffer[i] >= 'A' && szBuffer[i] <= 'Z')
+		else if( buffer.at(i) >= 'A' && buffer.at(i) <= 'Z')
 		{
-			KeyboardButtonEx(szBuffer[i],VK_SHIFT);
+			KeyboardButtonEx(buffer.at(i),VK_SHIFT);
 		}
-		else if ( szBuffer[i] >= '0' && szBuffer[i] <= '9')
+		else if ( buffer.at(i) >= '0' && buffer.at(i) <= '9')
 		{
-			KeyboardButtonEx(szBuffer[i]);
+			KeyboardButtonEx(buffer.at(i));
 		}
-		else if ( szBuffer[i] == '_')
+		else if ( buffer.at(i) == '_')
 		{
 			KeyboardButtonEx(VK_OEM_MINUS,VK_SHIFT);
 		}		
-		else if ( szBuffer[i] == '+')
+		else if ( buffer.at(i) == '+')
 		{
 			KeyboardButtonEx(VK_OEM_PLUS,VK_SHIFT);
 		}
-		else if ( szBuffer[i] == '[')
+		else if ( buffer.at(i) == '[')
 		{
 			KeyboardButtonEx(VK_OEM_4);
 		}
-		else if ( szBuffer[i] == ']')
+		else if ( buffer.at(i) == ']')
 		{
 			KeyboardButtonEx(VK_OEM_6);
 		}
@@ -170,6 +188,9 @@ void CKeyMouMng::InputCharByKeyBoard(const char* szBuffer)
 		{
 			::MessageBox(NULL,_T("密码只能是 \"a-z\" \"A-Z\" \"0-9\" \"_\" \"+\" \"[\" \"]\" 其他不可以使用"),NULL,MB_OK);
 		}
+	}
+	}else{
+		InputByDD(buffer);
 	}
 }
 
@@ -186,27 +207,26 @@ void CKeyMouMng::MouseMoveAndClickGameWnd(int nX,int nY)
 		MouseMove(LoginWndRect.left+nX,LoginWndRect.top+nY);
 	}
 	MouseLClick();
-	MouseLClick();
 }
 
-void CKeyMouMng::InputPassword( char* szBuffer)
+void CKeyMouMng::InputByDD(const string& buffer)
 {
-	HWND hLoginWnd = NULL;
+	/*HWND hLoginWnd = NULL;
 	hLoginWnd = GetLoginWnd();
 	if (hLoginWnd == NULL) 
-		return; 
+	return; */
 	//DWORD dwThread = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
 	// 将前台窗口线程贴附到当前线程（也就是程序A中的调用线程）
 	//AttachThreadInput(dwThread, GetCurrentThreadId(), TRUE);
-	for(auto i(0); i < strlen(szBuffer); i++)
+	for(auto i(0); i < buffer.size(); i++)
 	{
-		char szChar = szBuffer[i];
+		char szChar = buffer.at(i);
 		int code = 0;
-		if ( szBuffer[i] >= 'a' && szBuffer[i] <= 'z')
+		if ( buffer.at(i) >= 'a' && buffer.at(i) <= 'z')
 		{
 			code = getKeyCode(szChar);
 		}
-		else if ( szBuffer[i] >= '0' && szBuffer[i] <= '9')
+		else if ( buffer.at(i) >= '0' && buffer.at(i) <= '9')
 		{
 			code = 800 + szChar - '0';
 		}
@@ -215,7 +235,7 @@ void CKeyMouMng::InputPassword( char* szBuffer)
 		dd.DD_key(code, 2);
 		Sleep(300 + rand()%100);
 	}
-	LOG_DEBUG<<" input password "<<szBuffer;
+	LOG_DEBUG<<" input by dd"<<buffer.c_str();
 }
 
 int CKeyMouMng::getKeyCode(const char & ch)

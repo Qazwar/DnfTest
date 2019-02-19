@@ -116,7 +116,7 @@ namespace common{
 	{
 		CCurlInterface client;
 		string resp;
-		client.getData("http://47.106.111.213:9050/dnf/user/query", resp, &(string("mac:")+global_instance.getMac()), NULL);
+		client.getData(ServerUrl+"/dnf/user/query", resp, &(string("mac:")+global_instance.getMac()), NULL);
 		neb::CJsonObject pt_root;
 		pt_root.Parse(resp);
 		int status = 0;
@@ -129,7 +129,7 @@ namespace common{
 	{
 		CCurlInterface client;
 		string resp;
-		client.postData("http://47.106.111.213:9050/dnf/user/register", resp,&(string("mac:")+global_instance.getMac()), NULL);
+		client.postData(ServerUrl+"/dnf/user/register", resp,&(string("mac:")+global_instance.getMac()), NULL);
 		neb::CJsonObject pt_root;
 		pt_root.Parse(resp);
 		int status = 0;
@@ -195,7 +195,7 @@ namespace common{
 	{
 		CCurlInterface client;
 		string resp;
-		client.getData("http://47.106.111.213:9050/dnf/config/defines", resp,NULL, NULL );
+		client.getData(ServerUrl+"/dnf/config/defines", resp,NULL, NULL );
 		neb::CJsonObject pt_root;
 		pt_root.Parse(common::CStringTostring(TranslateString(common::stringToCString(resp))));
 		neb::CJsonObject pt_data;
@@ -207,7 +207,7 @@ namespace common{
 	{
 		CCurlInterface client;
 		string resp;
-		client.postData("http://47.106.111.213:9050/dnf/config/user", resp,&(string("mac:")+global_instance.getMac()), 
+		client.postData(ServerUrl+"/dnf/config/user", resp,&(string("mac:")+global_instance.getMac()), 
 			&common::CStringTostring(data));
 		return;
 	}
@@ -216,7 +216,7 @@ namespace common{
 	{
 		CCurlInterface client;
 		string resp;
-		client.getData("http://47.106.111.213:9050/dnf/config/user", resp, &(string("mac:")+global_instance.getMac()), NULL);
+		client.getData(ServerUrl+"/dnf/config/user", resp, &(string("mac:")+global_instance.getMac()), NULL);
 		neb::CJsonObject pt_root;
 		pt_root.Parse(common::CStringTostring(TranslateString(common::stringToCString(resp))));
 		neb::CJsonObject pt_data;
