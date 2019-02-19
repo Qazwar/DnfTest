@@ -52,7 +52,6 @@ void CDialogRegister::OnBnClickedOk()
 	// TODO: 在此添加控件通知处理程序代码
 	if(common::RegisterUser()==0){
 		AfxMessageBox("已经发送注册信息");
-		PostQuitMessage(0);
 	}
 	CDialogEx::OnOK();
 }

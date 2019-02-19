@@ -6,6 +6,7 @@
 #include "afxcmn.h"
 #include "afxeditbrowsectrl.h"
 #include "afxwin.h"
+#include "afxbutton.h"
 
 class CGameControl;
 // CDnfTestDlg 对话框
@@ -31,8 +32,6 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
-public:
-	afx_msg void OnBnClickedButtonStart();
 private:
 	static void StartProcess(void* param);
 	static void StartInputCodes(void*param);
@@ -40,8 +39,6 @@ private:
 	void InitData();
 	LRESULT OnUpdateGameStatus(WPARAM wParam, LPARAM lParam);
 public:
-	afx_msg void OnBnClickedButtonCreateRole();
-	afx_msg void OnBnClickedButton1();
 	CListCtrl m_ListAccount;
 	CMFCEditBrowseCtrl m_EditGameDir;
 	afx_msg void OnEnChangeMfceditbrowseGame();
@@ -54,12 +51,11 @@ public:
 	CEdit m_EditGameStatus;
 private:
 	CGameControl *m_gameControl;
+protected:
+	CBrush m_brush; 
 	void onGameStatusChange(const GameStatus& status, LPARAM lParam = NULL);
 	bool SaveUIInfo();//保存ui信息，用于创建角色
 public:
-	CButton m_ButtonStart;
-	afx_msg void OnBnClickedButtonStop();
-	CButton m_ButtonStop;
 	CEdit m_EditIP;
 	CComboBox m_ComboFirstRole;
 	CComboBox m_ComboSecondRole;
@@ -67,10 +63,17 @@ public:
 	afx_msg void OnCbnSelchangeComboSecondRole();
 	CComboBox m_ComboxFirstProfession;
 	CComboBox m_ComboxSecondProfession;
-	afx_msg void OnBnClickedButtonTestProfession();
-	afx_msg void OnBnClickedButtonTestArea();
 	CString m_EditLocalIP;
 	CSpinButtonCtrl m_SpinRetry;
 	afx_msg void OnEnChangeEditRetryTimes();
 	int m_EditRetry;
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	CMFCButton buttonStart;
+	afx_msg void OnBnClickedMfcbuttonStart();
+	CMFCButton buttonStop;
+	afx_msg void OnBnClickedMfcbuttonStop();
+	afx_msg void OnBnClickedMfcbuttonCreateRole();
+	afx_msg void OnBnClickedMfcbuttonInputPassword();
+	afx_msg void OnBnClickedMfcbuttonTestProfession();
+	afx_msg void OnBnClickedMfcbuttonTestArea();
 };

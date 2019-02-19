@@ -46,8 +46,6 @@ void CDnfTestDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_AREA, m_ComboArea);
 	DDX_Control(pDX, IDC_COMBO_SERVER, m_ComboServer);
 	DDX_Control(pDX, IDC_EDIT_GAME_STATUS, m_EditGameStatus);
-	DDX_Control(pDX, IDC_BUTTON_START, m_ButtonStart);
-	DDX_Control(pDX, IDC_BUTTON_STOP, m_ButtonStop);
 	DDX_Control(pDX, IDC_EDIT_IP, m_EditIP);
 	DDX_Control(pDX, IDC_COMBO_FIRST_ROLE, m_ComboFirstRole);
 	DDX_Control(pDX, IDC_COMBO_SECOND_ROLE, m_ComboSecondRole);
@@ -56,24 +54,27 @@ void CDnfTestDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_LOCAL_IP, m_EditLocalIP);
 	DDX_Control(pDX, IDC_SPIN_RETRY, m_SpinRetry);
 	DDX_Text(pDX, IDC_EDIT_RETRY_TIMES, m_EditRetry);
+	DDX_Control(pDX, IDC_MFCBUTTON_START, buttonStart);
+	DDX_Control(pDX, IDC_MFCBUTTON_STOP, buttonStop);
 }
 
 BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BUTTON_START, &CDnfTestDlg::OnBnClickedButtonStart)
-	ON_BN_CLICKED(IDC_BUTTON_CREATE_ROLE, &CDnfTestDlg::OnBnClickedButtonCreateRole)
-	ON_BN_CLICKED(IDC_BUTTON1, &CDnfTestDlg::OnBnClickedButton1)
 	ON_EN_CHANGE(IDC_MFCEDITBROWSE_GAME, &CDnfTestDlg::OnEnChangeMfceditbrowseGame)
 	ON_EN_UPDATE(IDC_MFCEDITBROWSE_GAME, &CDnfTestDlg::OnEnUpdateMfceditbrowseGame)
 	ON_CBN_SELCHANGE(IDC_COMBO_AREA, &CDnfTestDlg::OnCbnSelchangeComboArea)
 	ON_MESSAGE(WM_UPDATE_GAME_STATUS, &CDnfTestDlg::OnUpdateGameStatus)
-	ON_BN_CLICKED(IDC_BUTTON_STOP, &CDnfTestDlg::OnBnClickedButtonStop)
 	ON_CBN_SELCHANGE(IDC_COMBO_FIRST_ROLE, &CDnfTestDlg::OnCbnSelchangeComboFirstRole)
 	ON_CBN_SELCHANGE(IDC_COMBO_SECOND_ROLE, &CDnfTestDlg::OnCbnSelchangeComboSecondRole)
-	ON_BN_CLICKED(IDC_BUTTON_TEST_PROFESSION, &CDnfTestDlg::OnBnClickedButtonTestProfession)
-	ON_BN_CLICKED(IDC_BUTTON_TEST_AREA, &CDnfTestDlg::OnBnClickedButtonTestArea)
 	ON_EN_CHANGE(IDC_EDIT_RETRY_TIMES, &CDnfTestDlg::OnEnChangeEditRetryTimes)
+	ON_WM_CTLCOLOR()
+	ON_BN_CLICKED(IDC_MFCBUTTON_START, &CDnfTestDlg::OnBnClickedMfcbuttonStart)
+	ON_BN_CLICKED(IDC_MFCBUTTON_STOP, &CDnfTestDlg::OnBnClickedMfcbuttonStop)
+	ON_BN_CLICKED(IDC_MFCBUTTON_CREATE_ROLE, &CDnfTestDlg::OnBnClickedMfcbuttonCreateRole)
+	ON_BN_CLICKED(IDC_MFCBUTTON_INPUT_PASSWORD, &CDnfTestDlg::OnBnClickedMfcbuttonInputPassword)
+	ON_BN_CLICKED(IDC_MFCBUTTON_TEST_PROFESSION, &CDnfTestDlg::OnBnClickedMfcbuttonTestProfession)
+	ON_BN_CLICKED(IDC_MFCBUTTON_TEST_AREA, &CDnfTestDlg::OnBnClickedMfcbuttonTestArea)
 END_MESSAGE_MAP()
 
 
@@ -95,19 +96,26 @@ BOOL CDnfTestDlg::OnInitDialog()
 		this->ShowWindow(SW_HIDE);
 		CDialogRegister dlg;
 		dlg.DoModal();
+		PostQuitMessage(0);
 	}
 	this->ShowWindow(SW_SHOW);
 #ifndef DEBUG
-	this->GetDlgItem(IDC_BUTTON_CREATE_ROLE)->ShowWindow(SW_HIDE);
-	this->GetDlgItem(IDC_BUTTON1)->ShowWindow(SW_HIDE);
-	this->GetDlgItem(IDC_BUTTON_TEST_PROFESSION)->ShowWindow(SW_HIDE);
-	this->GetDlgItem(IDC_BUTTON_TEST_AREA)->ShowWindow(SW_HIDE);
-#endif
-	
+	this->GetDlgItem(IDC_MFCBUTTON_CREATE_ROLE)->ShowWindow(SW_HIDE);
+	this->GetDlgItem(IDC_MFCBUTTON_INPUT_PASSWORD)->ShowWindow(SW_HIDE);
+	this->GetDlgItem(IDC_MFCBUTTON_TEST_PROFESSION)->ShowWindow(SW_HIDE);
+	this->GetDlgItem(IDC_MFCBUTTON_TEST_AREA)->ShowWindow(SW_HIDE);
+#endif	
 	m_SpinRetry.SetBuddy(GetDlgItem(IDC_EDIT_RETRY_TIMES));
 	m_SpinRetry.SetRange(1, 9);
 	m_SpinRetry.SetPos(config_instance.loginFailTimes);
 	m_gameControl = new CGameControl(this->GetSafeHwnd());
+	m_brush.CreateSolidBrush(global_instance.getBackgroundColor()); 
+	buttonStart.SetFaceColor(global_instance.getButtonColor());
+	buttonStop.SetFaceColor(global_instance.getButtonColor());
+	((CMFCButton*)GetDlgItem(IDC_MFCBUTTON_CREATE_ROLE))->SetFaceColor(global_instance.getButtonColor());
+	((CMFCButton*)GetDlgItem(IDC_MFCBUTTON_INPUT_PASSWORD))->SetFaceColor(global_instance.getButtonColor());
+	((CMFCButton*)GetDlgItem(IDC_MFCBUTTON_TEST_PROFESSION))->SetFaceColor(global_instance.getButtonColor());
+	((CMFCButton*)GetDlgItem(IDC_MFCBUTTON_TEST_AREA))->SetFaceColor(global_instance.getButtonColor());
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -136,6 +144,10 @@ void CDnfTestDlg::OnPaint()
 	}
 	else
 	{
+		CRect rect;
+		CPaintDC dc(this);
+		GetClientRect(rect);
+		dc.FillSolidRect(rect, global_instance.getBackgroundColor());
 		CDialogEx::OnPaint();
 	}
 }
@@ -149,7 +161,7 @@ HCURSOR CDnfTestDlg::OnQueryDragIcon()
 
 
 
-void CDnfTestDlg::OnBnClickedButtonStart()
+void CDnfTestDlg::OnBnClickedMfcbuttonStart()
 {
 	if(common::QueryUser()==0){
 		AfxMessageBox("用户未授权");
@@ -164,12 +176,12 @@ void CDnfTestDlg::OnBnClickedButtonStart()
 void CDnfTestDlg::StartProcess(void* param)
 {
 	CDnfTestDlg*pThis = (CDnfTestDlg*)param;
-	pThis->m_ButtonStart.EnableWindow(FALSE);
+	pThis->buttonStart.EnableWindow(FALSE);
 	// TODO: 在此添加控件通知处理程序代码	
 	while(pThis->m_gameControl->GameProcess()){
 	}
 	pThis->onGameStatusChange(GAME_ALL_ACCOUNT_DONE);
-	pThis->m_ButtonStart.EnableWindow(TRUE);
+	pThis->buttonStart.EnableWindow(TRUE);
 }
 
 
@@ -267,22 +279,6 @@ LRESULT CDnfTestDlg::OnUpdateGameStatus(WPARAM wParam, LPARAM lParam)
 	onGameStatusChange(status, lParam);
 	return 0;
 }
-
-void CDnfTestDlg::OnBnClickedButtonCreateRole()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	_beginthread(CDnfTestDlg::StartCreateRole, NULL, this);
-}
-
-
-void CDnfTestDlg::OnBnClickedButton1()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	_beginthread(CDnfTestDlg::StartInputCodes, NULL, this);
-}
-
-
-
 
 void CDnfTestDlg::OnEnChangeMfceditbrowseGame()
 {
@@ -399,12 +395,6 @@ bool CDnfTestDlg::SaveUIInfo()
 	return true;
 }
 
-void CDnfTestDlg::OnBnClickedButtonStop()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	m_gameControl->Stop();
-}
-
 
 void CDnfTestDlg::OnCbnSelchangeComboFirstRole()
 {
@@ -452,23 +442,6 @@ void CDnfTestDlg::OnCbnSelchangeComboSecondRole()
 }
 
 
-void CDnfTestDlg::OnBnClickedButtonTestProfession()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	SaveUIInfo();
-	m_gameControl->SelectProfession();
-}
-
-
-void CDnfTestDlg::OnBnClickedButtonTestArea()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	SaveUIInfo();
-	config_instance.SaveData();
-	m_gameControl->SelectArea();
-}
-
-
 void CDnfTestDlg::OnEnChangeEditRetryTimes()
 {
 	// TODO:  如果该控件是 RICHEDIT 控件，它将不
@@ -478,4 +451,61 @@ void CDnfTestDlg::OnEnChangeEditRetryTimes()
 
 	// TODO:  在此添加控件通知处理程序代码
 	m_EditRetry = m_SpinRetry.GetPos();
+}
+
+
+HBRUSH CDnfTestDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+	// TODO:  在此更改 DC 的任何特性
+
+	// TODO:  如果默认的不是所需画笔，则返回另一个画笔
+	//在这加一条是否为对话框的判断语句
+	if(nCtlColor ==CTLCOLOR_STATIC)
+	{
+		pDC-> SetBkMode(TRANSPARENT); //设置字体背景为透明
+		pDC-> SetBkColor(global_instance.getBackgroundColor()); //字体背景色
+		return (HBRUSH)m_brush.GetSafeHandle();
+	}
+	return hbr;
+}
+
+
+
+void CDnfTestDlg::OnBnClickedMfcbuttonStop()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_gameControl->Stop();
+}
+
+
+void CDnfTestDlg::OnBnClickedMfcbuttonCreateRole()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	_beginthread(CDnfTestDlg::StartCreateRole, NULL, this);
+}
+
+
+void CDnfTestDlg::OnBnClickedMfcbuttonInputPassword()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	_beginthread(CDnfTestDlg::StartInputCodes, NULL, this);
+}
+
+
+void CDnfTestDlg::OnBnClickedMfcbuttonTestProfession()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SaveUIInfo();
+	m_gameControl->SelectProfession();
+}
+
+
+void CDnfTestDlg::OnBnClickedMfcbuttonTestArea()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SaveUIInfo();
+	config_instance.SaveData();
+	m_gameControl->SelectArea();
 }

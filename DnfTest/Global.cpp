@@ -24,3 +24,13 @@ ControllerType CGlobal::getControllerType()
 {
 	return control;
 }
+
+COLORREF CGlobal::getBackgroundColor()
+{
+	return 0X95AFCD;
+}
+
+COLORREF CGlobal::getButtonColor()
+{
+	return 0XBFE9EE;
+}
