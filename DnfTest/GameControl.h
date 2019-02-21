@@ -25,7 +25,7 @@ public:
 private:
 	void ClickAgreement();
 	void InputAccount();
-	void InputPassword();
+	void inputPasswordAndLogin();
 	bool CreateOneRole();
 	BOOL SaveVerificationCodeImage();
 	BOOL ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSame,

@@ -198,7 +198,7 @@ bool CGameControl::InputCodes()
 			if(FindImageInLoginWnd("PassWordWrong.png")){
 				CKeyMouMng::Ptr()->MouseMoveAndClick(600,434);  //点击确认
 				Sleep(500);
-				InputPassword();
+				inputPasswordAndLogin();
 			}
 		}
 		if(iTryTimes==config_instance.loginFailTimes){
@@ -213,7 +213,7 @@ bool CGameControl::CreateRole()
 	LOG_DEBUG<<"开始创建角色";
 	m_RoleIndex = 0;
 	//如果已经有毛线团的直接进入创建角色界面，也会跳过
-	while (!FindImageInGameWnd("GameStart.png")&&!FindImageInGameWnd("Role.png"))
+	while (!FindImageInGameWnd("GameStart.png")&&!FindImageInGameWnd("Role.png")&&!FindImageInGameWnd("RiskGroup.png"))
 	{
 		Sleep(500);
 	}
@@ -293,10 +293,10 @@ void CGameControl::InputAccount()
 	CKeyMouMng::Ptr()->InputString(account.qq);
 	CKeyMouMng::Ptr()->KeyboardButtonEx(VK_TAB);
 	LOG_DEBUG<<"账号 "<<account.qq.c_str()<<" 密码 "<<account.password.c_str();
-	InputPassword();
+	inputPasswordAndLogin();
 }
 
-void CGameControl::InputPassword()
+void CGameControl::inputPasswordAndLogin()
 {
 	Sleep(1000);
 	const auto& account = config_instance.accounts.at(this->m_Index);
