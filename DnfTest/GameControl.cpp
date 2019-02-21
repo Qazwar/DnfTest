@@ -43,6 +43,7 @@ void CGameControl::Stop()
 bool CGameControl::GameProcess()
 {
 	config_instance.SaveData();
+	m_Index = 0;
 	Sleep(1000);
 	bool bSuccess = false;
 	int tryTimes = 0;
@@ -88,13 +89,11 @@ CGameControl::~CGameControl(void)
 
 void CGameControl::SelectAreaProcess()
 {
-	while(true){
-		if (FindImageInLoginWnd("SelectArea.png"))
-		{
-			CKeyMouMng::Ptr()->MouseMoveAndClick(414,549);  //点击选择服务器
-			Sleep(500);
-			break;
-		}
+	while(!FindImageInLoginWnd("SelectArea.png")){
+		Sleep(500);
+	}
+	while(FindImageInLoginWnd("SelectArea.png")){
+		CKeyMouMng::Ptr()->MouseMoveAndClick(414,549);  //点击选择服务器
 		Sleep(500);
 	}
 	LOG_DEBUG<<"开始选区";
@@ -772,8 +771,8 @@ void CGameControl::SelectProfession()
 	{
 		if(config_instance.professionPositions.at(i).name == roleName)
 		{
-			positionX = config_instance.professionPositions.at(i).positionX+10+rand()%55;
-			positionY = config_instance.professionPositions.at(i).positionY+10+rand()%46;
+			positionX = config_instance.professionPositions.at(i).positionX+10+rand()%53;
+			positionY = config_instance.professionPositions.at(i).positionY+10+rand()%43;
 			break;
 		}
 	}
@@ -795,7 +794,7 @@ void CGameControl::SelectProfession()
 			break;
 		}
 	}
-	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(177+rand()%65+professionIndex*77,408+rand()%39);  //点击第二职业
+	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(177+rand()%53+10+professionIndex*77,408+rand()%27+10);  //点击第二职业
 	Sleep(500+rand()%500);
 }
 

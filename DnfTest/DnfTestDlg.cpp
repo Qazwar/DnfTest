@@ -363,6 +363,7 @@ bool CDnfTestDlg::SaveUIInfo()
 	m_ComboServer.GetWindowText(csServerName);
 	m_ComboArea.GetWindowText(csAreaName);
 
+	UpdateData(TRUE);
 	config_instance.game_path = common::CStringTostring(csGamePath);
 	config_instance.firstRole = common::CStringTostring(csFirstRole);
 	config_instance.firstRoleProfession = common::CStringTostring(csFistRoleProfession);
@@ -371,7 +372,7 @@ bool CDnfTestDlg::SaveUIInfo()
 	config_instance.servername = common::CStringTostring(csServerName);
 	config_instance.areaname = common::CStringTostring(csAreaName);
 	config_instance.loginFailTimes = m_EditRetry;
-	config_instance.ip_address = m_EditLocalIP;
+	config_instance.ip_address = common::CStringTostring(m_EditLocalIP);
 	if(config_instance.game_path.size()==0){
 		AfxMessageBox("游戏路径不能为空");
 		return false;

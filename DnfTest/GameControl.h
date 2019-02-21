@@ -26,7 +26,7 @@ private:
 	void ClickAgreement();
 	void InputAccount();
 	void InputPassword();
-	bool CreateARole();
+	bool CreateOneRole();
 	BOOL SaveVerificationCodeImage();
 	BOOL ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSame,
 		OUT int& nX,OUT int& nY,bool bSave, bool bGray = true /*是否用灰度图比较*/);

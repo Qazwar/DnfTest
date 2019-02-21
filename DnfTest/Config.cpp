@@ -12,10 +12,10 @@ Config::Config()
 	file_root.Parse(common::GetConfig());
 	neb::CJsonObject configData;
 	file_root.Get("config", configData);
-	
+	ip_try_times = 10;
 	configData.Get("game_path", game_path);
 	configData.Get("ip_address", ip_address);
-	configData.Get("ip_try_times", ip_try_times);
+	//configData.Get("ip_try_times", ip_try_times);
 	configData.Get("firstRole", firstRole);
 	configData.Get("firstRoleProfession", firstRoleProfession);
 	configData.Get("secondRole", secondRole);
