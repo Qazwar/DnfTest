@@ -219,18 +219,25 @@ bool CGameControl::CreateRole()
 		Sleep(500);
 	}
 	LOG_DEBUG<<"是否需要输入冒险团";
-	if (FindImageInGameWnd("RiskGroup.png"))
+	while(FindImageInGameWnd("RiskGroup.png"))
 	{
-		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(627,432);  //点击冒险团编辑框
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(405,290);  //点击冒险团编辑框
+		for (auto i = 0; i<20; i++)
+		{	
+			Sleep(100);
+			CKeyMouMng::Ptr()->DirKeyDown(VK_BACK);
+			Sleep(100);
+			CKeyMouMng::Ptr()->DirKeyUp(VK_BACK);
+		}
 		const auto groupName = CreateName(16);
 		LOG_DEBUG<<"【冒险团名字】"<<groupName.c_str();
 		CKeyMouMng::Ptr()->InputString(groupName);
 		CKeyMouMng::Ptr()->KeyboardButtonEx(VK_RETURN);
-		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(519,642);  //点击设置
-		Sleep(500);
-		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(762,544);  //点击确定
-		Sleep(500);
-		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(801,485);  //点击已经设置冒险团名称
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(347,428);  //点击设置
+		Sleep(2000);
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(387,363);  //点击确定
+		Sleep(2000);
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(403,323);  //点击已经设置冒险团名称
 	}
 	if (FindImageInGameWnd("Blocked.png"))
 	{
@@ -239,9 +246,9 @@ bool CGameControl::CreateRole()
 		return false;
 	}
 	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE, NULL);
-	CreateARole();
+	CreateOneRole();
 	if(config_instance.secondRole.compare("不创建角色")!=0){
-		CreateARole();
+		CreateOneRole();
 	}
 	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE_DONE, NULL);
 	return true;
@@ -250,7 +257,7 @@ bool CGameControl::CreateRole()
 void CGameControl::EndGame()
 {
 	Sleep(1000);
-	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(1022,819);  //点击结束游戏
+	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(550,548);  //点击结束游戏
 	Sleep(1000);
 	KillProcess("DNF.exe");
 	Sleep(2000);
@@ -299,18 +306,18 @@ void CGameControl::InputPassword()
 	CKeyMouMng::Ptr()->MouseMoveAndClick(1044,482);  //点击登录
 }
 
-bool CGameControl::CreateARole()
+bool CGameControl::CreateOneRole()
 {
 	LOG_DEBUG<<"可以创建角色了";
 	if(!FindImageInGameWnd("Role.png")){
 		Sleep(1000);
-		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(468,823);  //点击创建角色
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(178,548);  //点击创建角色
 		Sleep(1000);
 	}
 	//随机选择职业
 	SelectProfession();
 	m_RoleIndex++;
-	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(1416,645);  //创建角色第二步
+	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(691, 432);  //创建角色第二步
 	Sleep(1000);
 	while(!FindImageInGameWnd("NameCheckPass.png", 0.99, false))
 	{
@@ -329,13 +336,19 @@ bool CGameControl::CreateARole()
 		LOG_DEBUG<<"【角色名字】"<<name.c_str();
 		CKeyMouMng::Ptr()->InputString(name);
 		CKeyMouMng::Ptr()->KeyboardButtonEx(VK_RETURN);
-		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(910,428);  //点击检测重复
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(479,289);  //点击检测重复
 		LOG_DEBUG<<"点击检测重复 "<<name.c_str();
 		Sleep(1000);
-		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(802,483);//点击检测结果
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(400,321);//点击检测结果
 		Sleep(1000);
 	}
-	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(755,529); //点击确定
+	while(FindImageInGameWnd("Role.png"))
+	{
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(370,354); //点击确定
+		Sleep(500);
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(373,320); //点击确定
+		Sleep(500);
+	}
 	LOG_DEBUG<<"点击确定";
 	Sleep(1000);
 
@@ -349,7 +362,7 @@ bool CGameControl::CreateARole()
 	if (bFind)
 	{
 		LOG_DEBUG<<"成功 的坐标 "<<nXtmp<<" y "<< nYtmp;
-		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(nXtmp+140, nYtmp+115);  //点击编辑框
+		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(nXtmp+95, nYtmp+76);  //点击编辑框
 	}
 	Sleep(500);
 	LOG_DEBUG<<"点击创建角色成功";
@@ -729,11 +742,15 @@ BOOL CGameControl::FindImageInLoginWnd(const string& image)
 
 string CGameControl::CreateName(const unsigned int & count)
 {
-	//随机选取12个英文字母
 	string Name;
 	srand((int)time(0));
 	for(unsigned int i(0); i < count; i++){
-		char ch = rand()%26+'a';
+		char ch = 'a';
+		if(rand()%2==0){
+			ch = rand()%26+'a';
+		}else{
+			ch = rand()%10+'0';
+		}
 		Name.push_back(ch);
 	}
 	return Name;
@@ -755,8 +772,8 @@ void CGameControl::SelectProfession()
 	{
 		if(config_instance.professionPositions.at(i).name == roleName)
 		{
-			positionX = config_instance.professionPositions.at(i).positionX+rand()%96;
-			positionY = config_instance.professionPositions.at(i).positionY+rand()%76;
+			positionX = config_instance.professionPositions.at(i).positionX+10+rand()%55;
+			positionY = config_instance.professionPositions.at(i).positionY+10+rand()%46;
 			break;
 		}
 	}
@@ -778,7 +795,7 @@ void CGameControl::SelectProfession()
 			break;
 		}
 	}
-	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(467+rand()%95+professionIndex*118,612+rand()%45);  //点击第二职业
+	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(177+rand()%65+professionIndex*77,408+rand()%39);  //点击第二职业
 	Sleep(500+rand()%500);
 }
 

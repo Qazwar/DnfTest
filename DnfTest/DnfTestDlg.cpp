@@ -205,7 +205,7 @@ void CDnfTestDlg::InitData()
 	m_EditGameDir.SetWindowText(common::stringToCString(config_instance.game_path));
 	m_ListAccount.InsertColumn(0,"ÐòÁÐºÅ",LVCFMT_LEFT, 50);
 	m_ListAccount.InsertColumn(1,"½ÇÉ«×´Ì¬", LVCFMT_LEFT, 100);
-	m_ListAccount.InsertColumn(2,"qqºÅÂë", LVCFMT_LEFT, 200);
+	m_ListAccount.InsertColumn(2,"qqºÅÂë", LVCFMT_LEFT, 100);
 	m_ListAccount.InsertColumn(3,"ÃÜÂë",LVCFMT_LEFT, 200);
 	for(auto i(0); i < config_instance.accounts.size(); i++)
 	{

@@ -76,6 +76,7 @@ void CKeyMouMng::MouseLClick()
 	else if (global_instance.getControllerType() == DD)
 	{
 		dd.DD_btn(2);
+		Sleep(100);
 		dd.DD_btn(1);         // 1左下 2左上 4右下 8右上
 		Sleep(200);
 		dd.DD_btn(2);
@@ -197,13 +198,13 @@ void CKeyMouMng::InputString(const string& buffer)
 void CKeyMouMng::MouseMoveAndClickGameWnd(int nX,int nY)
 {
 	RECT LoginWndRect;
-	HWND hLoginWnd = NULL;
-	hLoginWnd = GetGameWnd();
-	if (hLoginWnd == NULL) 
+	HWND hGameWnd = NULL;
+	hGameWnd = GetGameWnd();
+	if (hGameWnd == NULL) 
 		return;
-	if (hLoginWnd)
+	if (hGameWnd)
 	{
-		::GetWindowRect(hLoginWnd, &LoginWndRect);
+		::GetWindowRect(hGameWnd, &LoginWndRect);
 		MouseMove(LoginWndRect.left+nX,LoginWndRect.top+nY);
 	}
 	MouseLClick();

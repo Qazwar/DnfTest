@@ -20,7 +20,7 @@ const string ServerUrl = "https://dev.utomarket.com:9055";
 //控制类型
 enum ControllerType{
 	CONTROL_WINDOWS_MESSAGE = 1,//windows消息
-	DD = 2,//dd空间
+	DD = 2,//dd控件
 };
 
 #define WM_UPDATE_GAME_STATUS (WM_USER+1)
