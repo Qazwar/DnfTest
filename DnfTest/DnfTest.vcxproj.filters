@@ -19,6 +19,9 @@
     <Filter Include="CJsonObject">
       <UniqueIdentifier>{ab1816fc-8f70-415e-a895-cf8e5aaab6bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Controls">
+      <UniqueIdentifier>{6557bbd9-ad07-4e05-a89d-d2249a832254}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -93,6 +96,15 @@
     <ClInclude Include="CurlInterface.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DialogIP.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DialogVerificationCode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\ChildDialog.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DnfTest.cpp">
@@ -145,6 +157,15 @@
     </ClCompile>
     <ClCompile Include="CurlInterface.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogIP.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogVerificationCode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\ChildDialog.cpp">
+      <Filter>Controls</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

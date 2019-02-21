@@ -7,10 +7,13 @@
 #include "afxeditbrowsectrl.h"
 #include "afxwin.h"
 #include "afxbutton.h"
+#include "DialogIP.h"
+#include "DialogVerificationCode.h"
+#include "Controls\ChildDialog.h"
 
 class CGameControl;
 // CDnfTestDlg 对话框
-class CDnfTestDlg : public CDialogEx
+class CDnfTestDlg : public CChildDialog
 {
 // 构造
 public:
@@ -55,7 +58,8 @@ protected:
 	CBrush m_brush; 
 	void onGameStatusChange(const GameStatus& status, LPARAM lParam = NULL);
 	bool SaveUIInfo();//保存ui信息，用于创建角色
-public:
+	void initControl();
+private:
 	CEdit m_EditIP;
 	CComboBox m_ComboFirstRole;
 	CComboBox m_ComboSecondRole;
@@ -76,4 +80,9 @@ public:
 	afx_msg void OnBnClickedMfcbuttonInputPassword();
 	afx_msg void OnBnClickedMfcbuttonTestProfession();
 	afx_msg void OnBnClickedMfcbuttonTestArea();
+	CTabCtrl tabTool;
+	DialogIP dlgIP;
+	DialogVerificationCode dlgVerificationCode;
+public:
+	afx_msg void OnTcnSelchangeTabTool(NMHDR *pNMHDR, LRESULT *pResult);
 };

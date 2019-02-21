@@ -200,9 +200,12 @@
     <ClInclude Include="Common\singleton.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Controls\ChildDialog.h" />
     <ClInclude Include="CurlInterface.h" />
     <ClInclude Include="DD.h" />
+    <ClInclude Include="DialogIP.h" />
     <ClInclude Include="DialogRegister.h" />
+    <ClInclude Include="DialogVerificationCode.h" />
     <ClInclude Include="DnfTest.h" />
     <ClInclude Include="DnfTestDlg.h" />
     <ClInclude Include="GameControl.h" />
@@ -227,9 +230,12 @@
     </ClCompile>
     <ClCompile Include="CommonStatic.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="Controls\ChildDialog.cpp" />
     <ClCompile Include="CurlInterface.cpp" />
     <ClCompile Include="DD.cpp" />
+    <ClCompile Include="DialogIP.cpp" />
     <ClCompile Include="DialogRegister.cpp" />
+    <ClCompile Include="DialogVerificationCode.cpp" />
     <ClCompile Include="DnfTest.cpp" />
     <ClCompile Include="DnfTestDlg.cpp" />
     <ClCompile Include="GameControl.cpp" />

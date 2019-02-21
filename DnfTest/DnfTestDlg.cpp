@@ -22,7 +22,7 @@
 
 
 CDnfTestDlg::CDnfTestDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CDnfTestDlg::IDD, pParent), m_gameControl(NULL)
+	: CChildDialog(CDnfTestDlg::IDD, pParent), m_gameControl(NULL)
 	, m_EditRetry(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -56,6 +56,7 @@ void CDnfTestDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_RETRY_TIMES, m_EditRetry);
 	DDX_Control(pDX, IDC_MFCBUTTON_START, buttonStart);
 	DDX_Control(pDX, IDC_MFCBUTTON_STOP, buttonStop);
+	DDX_Control(pDX, IDC_TAB_TOOL, tabTool);
 }
 
 BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
@@ -75,6 +76,7 @@ BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_MFCBUTTON_INPUT_PASSWORD, &CDnfTestDlg::OnBnClickedMfcbuttonInputPassword)
 	ON_BN_CLICKED(IDC_MFCBUTTON_TEST_PROFESSION, &CDnfTestDlg::OnBnClickedMfcbuttonTestProfession)
 	ON_BN_CLICKED(IDC_MFCBUTTON_TEST_AREA, &CDnfTestDlg::OnBnClickedMfcbuttonTestArea)
+	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_TOOL, &CDnfTestDlg::OnTcnSelchangeTabTool)
 END_MESSAGE_MAP()
 
 
@@ -116,6 +118,7 @@ BOOL CDnfTestDlg::OnInitDialog()
 	((CMFCButton*)GetDlgItem(IDC_MFCBUTTON_INPUT_PASSWORD))->SetFaceColor(global_instance.getButtonColor());
 	((CMFCButton*)GetDlgItem(IDC_MFCBUTTON_TEST_PROFESSION))->SetFaceColor(global_instance.getButtonColor());
 	((CMFCButton*)GetDlgItem(IDC_MFCBUTTON_TEST_AREA))->SetFaceColor(global_instance.getButtonColor());
+	initControl();
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -178,8 +181,7 @@ void CDnfTestDlg::StartProcess(void* param)
 	CDnfTestDlg*pThis = (CDnfTestDlg*)param;
 	pThis->buttonStart.EnableWindow(FALSE);
 	// TODO: 在此添加控件通知处理程序代码	
-	while(pThis->m_gameControl->GameProcess()){
-	}
+	pThis->m_gameControl->GameLoop();
 	pThis->onGameStatusChange(GAME_ALL_ACCOUNT_DONE);
 	pThis->buttonStart.EnableWindow(TRUE);
 }
@@ -203,17 +205,15 @@ void CDnfTestDlg::InitData()
 	m_EditLocalIP = common::stringToCString(config_instance.ip_address);
 	this->UpdateData(FALSE);
 	m_EditGameDir.SetWindowText(common::stringToCString(config_instance.game_path));
-	m_ListAccount.InsertColumn(0,"序列号",LVCFMT_LEFT, 50);
-	m_ListAccount.InsertColumn(1,"角色状态", LVCFMT_LEFT, 100);
-	m_ListAccount.InsertColumn(2,"qq号码", LVCFMT_LEFT, 100);
-	m_ListAccount.InsertColumn(3,"密码",LVCFMT_LEFT, 200);
+	m_ListAccount.InsertColumn(0,"序号",LVCFMT_LEFT, 40);
+	m_ListAccount.InsertColumn(1,"qq号码", LVCFMT_LEFT, 80);
+	m_ListAccount.InsertColumn(2,"密码",LVCFMT_LEFT, 125);
 	for(auto i(0); i < config_instance.accounts.size(); i++)
 	{
 		 const auto& account = config_instance.accounts.at(i);
 		 m_ListAccount.InsertItem(i, common::IntToCString(i+1));
-		 m_ListAccount.SetItemText(i, 1, _T("未创建"));
-		 m_ListAccount.SetItemText(i, 2, common::stringToCString(account.qq));
-		 m_ListAccount.SetItemText(i, 3, common::stringToCString(account.password));
+		 m_ListAccount.SetItemText(i, 1, common::stringToCString(account.qq));
+		 m_ListAccount.SetItemText(i, 2, common::stringToCString(account.password));
 	}
 	auto roleNameArray = common::SplitString(config_instance.role_name_type, ';');
 	for (auto i(0); i < roleNameArray->GetSize(); i++)
@@ -397,6 +397,21 @@ bool CDnfTestDlg::SaveUIInfo()
 }
 
 
+void CDnfTestDlg::initControl()
+{
+	tabTool.InsertItem( 0, _T("切换IP"));
+	tabTool.InsertItem( 1, _T("验证码"));
+	CRect rc;
+	tabTool.GetClientRect(rc);////获得TAB控件的坐标
+	rc.top += 20;
+	dlgIP.Create(IDD_DIALOG_VPN, &tabTool);
+	dlgIP.ShowWindow(SW_SHOW);
+	dlgVerificationCode.Create(IDD_DIALOG_VERIFICATION_CODE, &tabTool);
+	dlgVerificationCode.ShowWindow(SW_HIDE);
+	dlgIP.MoveWindow(&rc);
+	dlgVerificationCode.MoveWindow(&rc);
+}
+
 void CDnfTestDlg::OnCbnSelchangeComboFirstRole()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -509,4 +524,25 @@ void CDnfTestDlg::OnBnClickedMfcbuttonTestArea()
 	SaveUIInfo();
 	config_instance.SaveData();
 	m_gameControl->SelectArea();
+}
+
+
+void CDnfTestDlg::OnTcnSelchangeTabTool(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	// TODO: 在此添加控件通知处理程序代码
+	*pResult = 0;
+	*pResult = 0;
+	switch (tabTool.GetCurSel())
+	{
+	case 0:
+		dlgIP.ShowWindow(SW_SHOW);
+		dlgVerificationCode.ShowWindow(SW_HIDE);
+		break;
+	case 1:
+		dlgIP.ShowWindow(SW_HIDE);
+		dlgVerificationCode.ShowWindow(SW_SHOW);
+		break;
+	default:
+		break;
+	}
 }

@@ -15,14 +15,16 @@ public:
 	bool StartGame();
 	bool InputCodes();
 	bool CreateRole();
-	void EndGame();
-	void SetAccountIndex(const int& index);
-	bool FindCurrentAccountIndex();
 	void Stop();
-	bool GameProcess();
 	void SelectProfession();
 	void SelectArea();
+	void ResetIndex();
+	void GameLoop();
+	void EndGame();
 private:
+	void SetAccountIndex(const int& index);
+	bool FindCurrentAccountIndex();
+	bool GameProcess();
 	void ClickAgreement();
 	void InputAccount();
 	void inputPasswordAndLogin();

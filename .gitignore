@@ -1,6 +1,7 @@
 *.suo
 Debug/
 Release/
+Release_stable/
 X64/
 ipch/
 

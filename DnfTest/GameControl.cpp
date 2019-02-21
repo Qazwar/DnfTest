@@ -43,7 +43,6 @@ void CGameControl::Stop()
 bool CGameControl::GameProcess()
 {
 	config_instance.SaveData();
-	m_Index = 0;
 	Sleep(1000);
 	bool bSuccess = false;
 	int tryTimes = 0;
@@ -828,6 +827,19 @@ void CGameControl::SelectArea()
 			break;
 		}
 	}	
+}
+
+void CGameControl::ResetIndex()
+{
+	m_Index = 0;
+}
+
+void CGameControl::GameLoop()
+{
+	while(true){
+		GameProcess();
+	}
+	ResetIndex();
 }
 
 BOOL CGameControl::KillProcess(const string& processName)
