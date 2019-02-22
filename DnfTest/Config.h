@@ -7,9 +7,9 @@ class account_info{
 public:
 	string qq;
 	string password;
-	string role_name;
-	int status;
-	account_info(const string& qq = "", const string& password = "", const string& role_name = "");
+	vector<string> role_name;
+	AccountStatus accountStatus;
+	account_info(const string& qq = "", const string& password = "");
 };
 
 class area{

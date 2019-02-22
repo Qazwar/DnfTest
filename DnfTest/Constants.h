@@ -1,8 +1,9 @@
 #pragma  once
-enum RoleStatus {
+enum AccountStatus {
 	STATUS_INIT = 0,
-	STATUS_SUCCESS = 1,
-	STATUS_FAILED = 2,
+	STATUS_LOGIN_FAILED = 1,//登录失败
+	STATUS_SUCCESS = 2,//成功创建角色的账号
+	STATUS_EXCEPTION = 3//游戏异常账号
 };
 
 enum GameStatus{

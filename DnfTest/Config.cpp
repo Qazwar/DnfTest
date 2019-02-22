@@ -104,10 +104,9 @@ void Config::LoadServerConfig()
 	}
 }
 
-account_info::account_info(const string& qq, const string& password, const string& role_name)
+account_info::account_info(const string& qq, const string& password)
 {
 	this->qq = qq;
 	this->password = password;
-	this->role_name = role_name;
-	this->status = STATUS_INIT;
+	this->accountStatus = STATUS_INIT;
 }

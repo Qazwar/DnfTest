@@ -6,6 +6,7 @@
 #include "tlhelp32.h"
 #include "VerificationCode.h"
 #include "VPNControler.h"
+#include "FileParser.h"
 
 char g_ExePath[MAX_PATH] = {0};
 
@@ -14,33 +15,31 @@ m_Index(0), m_hShow(hShow),m_Stop(false),m_RoleIndex(0)
 {
 	GetPath(g_ExePath);
 #ifndef _DEBUG
-	KillProcess("Client.exe");
-	KillProcess("DNF.exe");
+	killProcess("Client.exe");
+	killProcess("DNF.exe");
 #endif
 }
-bool CGameControl::FindCurrentAccountIndex()
+
+bool CGameControl::findCurrentAccountIndex()
 {
 	if(m_Stop){
 		return false;
 	}
 	//找到第一个没有创建角色的账号
-	const auto& accounts = config_instance.accounts;
 	m_Index++;
-	if(m_Index == accounts.size())
+	if(m_Index == config_instance.accounts.size())
 	{
 		return false;
 	}
 	return true;
 }
 
-
-
 void CGameControl::Stop()
 {
 	m_Stop = true;
 }
 
-bool CGameControl::GameProcess()
+bool CGameControl::gameProcess()
 {
 	config_instance.SaveData();
 	Sleep(1000);
@@ -67,19 +66,19 @@ bool CGameControl::GameProcess()
 		if(bSuccess){
 			break;
 		}
-		KillProcess("Client.exe");
-		KillProcess("DNF.exe");
+		killProcess("Client.exe");
+		killProcess("DNF.exe");
 	}
 	if(!bSuccess){
-		KillProcess("Client.exe");
-		KillProcess("DNF.exe");
-		return FindCurrentAccountIndex();
+		killProcess("Client.exe");
+		killProcess("DNF.exe");
+		return findCurrentAccountIndex();
 	}
 	if(!CreateRole()){
-		return FindCurrentAccountIndex();;
+		return findCurrentAccountIndex();;
 	}
 	EndGame();
-	return FindCurrentAccountIndex();
+	return findCurrentAccountIndex();
 }
 
 CGameControl::~CGameControl(void)
@@ -88,22 +87,22 @@ CGameControl::~CGameControl(void)
 
 void CGameControl::SelectAreaProcess()
 {
-	while(!FindImageInLoginWnd("SelectArea.png")){
+	while(!findImageInLoginWnd("SelectArea.png")){
 		Sleep(500);
 	}
-	while(FindImageInLoginWnd("SelectArea.png")){
+	while(findImageInLoginWnd("SelectArea.png")){
 		CKeyMouMng::Ptr()->MouseMoveAndClick(414,549);  //点击选择服务器
 		Sleep(500);
 	}
 	LOG_DEBUG<<"开始选区";
 	SelectArea();
 	LOG_DEBUG<<"选区完成";
-	while(!FindImageInLoginWnd("QQ.png")){
+	while(!findImageInLoginWnd("QQ.png")){
 		CKeyMouMng::Ptr()->MouseMoveAndClick(1041,554);  //点击登录游戏
 		int Times(0);
 		bool delayShow = false;
 		while( Times++ <= 5){
-			if(FindImageInLoginWnd("Delay.png")){
+			if(findImageInLoginWnd("Delay.png")){
 				delayShow = true;
 				break;
 			}
@@ -121,7 +120,7 @@ void CGameControl::SelectAreaProcess()
 bool CGameControl::StartGame()
 {
 #ifndef DEBUG
-	if(!SwitchVPN()){
+	if(!switchVPN()){
 		PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_IP_FAILED, NULL);
 		return false;
 	}
@@ -154,19 +153,19 @@ bool CGameControl::InputCodes()
 {
 	SelectAreaProcess();
 	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_LOGIN, NULL);
-	while (!FindImageInLoginWnd("LoginByCode.png"))
+	while (!findImageInLoginWnd("LoginByCode.png"))
 	{
 		Sleep(500);
 	}
-	ClickAgreement();
+	clickAgreement();
 	Sleep(500);
-	InputAccount();	
+	inputAccount();	
 	//登录完成，进入验证码界面
 	bool bVerficationCode = false;
 	int Times = 0;
 	while(Times++<=6){
 		Sleep(500);
-		if(FindImageInLoginWnd("VerificationCode.png")||FindImageInLoginWnd("PassWordWrong.png")){
+		if(findImageInLoginWnd("VerificationCode.png")||findImageInLoginWnd("PassWordWrong.png")){
 			bVerficationCode = true;
 			break;
 		}
@@ -174,10 +173,10 @@ bool CGameControl::InputCodes()
 	if(bVerficationCode){
 		LOG_DEBUG<<"需要输入验证码";
 		int iTryTimes = 0;
-		while(iTryTimes++<=config_instance.loginFailTimes){
+		while(iTryTimes<=config_instance.loginFailTimes){
 			int verficationCodeTimes = 0;//验证码重试4次
-			while(FindImageInLoginWnd("VerificationCode.png")&&verficationCodeTimes++<=4){
-				if(SaveVerificationCodeImage())
+			while(findImageInLoginWnd("VerificationCode.png")&&verficationCodeTimes++<=4){
+				if(saveVerificationCodeImage())
 				{
 					CString strRe = CVerificationCode::Ptr()->pRecYZM_A((LPSTR)(LPCSTR)common::stringToCString(string(g_ExePath)+"VerificationCode\\tmp.png"),
 						common::stringToCString(config_instance.verification_account_code),common::stringToCString(config_instance.verification_password),(LPSTR)(LPCSTR)_T("65395"));
@@ -194,13 +193,15 @@ bool CGameControl::InputCodes()
 					}
 				}
 			}
-			if(FindImageInLoginWnd("PassWordWrong.png")){
+			if(findImageInLoginWnd("PassWordWrong.png")){
 				CKeyMouMng::Ptr()->MouseMoveAndClick(600,434);  //点击确认
 				Sleep(500);
+				iTryTimes++;
 				inputPasswordAndLogin();
 			}
 		}
 		if(iTryTimes==config_instance.loginFailTimes){
+			config_instance.accounts.at(this->m_Index).accountStatus = STATUS_LOGIN_FAILED;
 			return false;
 		}
 	}
@@ -212,12 +213,12 @@ bool CGameControl::CreateRole()
 	LOG_DEBUG<<"开始创建角色";
 	m_RoleIndex = 0;
 	//如果已经有毛线团的直接进入创建角色界面，也会跳过
-	while (!FindImageInGameWnd("GameStart.png")&&!FindImageInGameWnd("Role.png")&&!FindImageInGameWnd("RiskGroup.png"))
+	while (!findImageInGameWnd("GameStart.png")&&!findImageInGameWnd("Role.png")&&!findImageInGameWnd("RiskGroup.png"))
 	{
 		Sleep(500);
 	}
 	LOG_DEBUG<<"是否需要输入冒险团";
-	while(FindImageInGameWnd("RiskGroup.png"))
+	while(findImageInGameWnd("RiskGroup.png"))
 	{
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(405,290);  //点击冒险团编辑框
 		for (auto i = 0; i<20; i++)
@@ -227,7 +228,7 @@ bool CGameControl::CreateRole()
 			Sleep(100);
 			CKeyMouMng::Ptr()->DirKeyUp(VK_BACK);
 		}
-		const auto groupName = CreateName(16);
+		const auto groupName = createName(16);
 		LOG_DEBUG<<"【冒险团名字】"<<groupName.c_str();
 		CKeyMouMng::Ptr()->InputString(groupName);
 		CKeyMouMng::Ptr()->KeyboardButtonEx(VK_RETURN);
@@ -237,16 +238,17 @@ bool CGameControl::CreateRole()
 		Sleep(2000);
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(403,323);  //点击已经设置冒险团名称
 	}
-	if (FindImageInGameWnd("Blocked.png"))
+	if (findImageInGameWnd("Blocked.png"))
 	{
-		KillProcess("DNF.exe");
+		config_instance.accounts.at(this->m_Index).accountStatus = STATUS_EXCEPTION;
+		killProcess("DNF.exe");
 		Sleep(1000);
 		return false;
 	}
 	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE, NULL);
-	CreateOneRole();
+	createOneRole();
 	if(config_instance.secondRole.compare("不创建角色")!=0){
-		CreateOneRole();
+		createOneRole();
 	}
 	PostMessage(m_hShow, WM_UPDATE_GAME_STATUS, (WPARAM)GAME_CREATE_ROLE_DONE, NULL);
 	return true;
@@ -257,26 +259,26 @@ void CGameControl::EndGame()
 	Sleep(1000);
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(550,548);  //点击结束游戏
 	Sleep(1000);
-	KillProcess("DNF.exe");
+	killProcess("DNF.exe");
 	Sleep(2000);
 }
 
-void CGameControl::SetAccountIndex(const int& index)
+void CGameControl::setAccountIndex(const int& index)
 {
 	this->m_Index = index;
 }
 
 
-void CGameControl::ClickAgreement()
+void CGameControl::clickAgreement()
 {
-	if(FindImageInGameWnd("Agreement.png")){
+	if(findImageInGameWnd("Agreement.png")){
 		CKeyMouMng::Ptr()->MouseMoveAndClick(948,413); //点击同意协议
 	}
 	Sleep(100);
 }
 
 
-void CGameControl::InputAccount()
+void CGameControl::inputAccount()
 {
 	CKeyMouMng::Ptr()->MouseMoveAndClick(1092,328);  //点击编辑框
 	Sleep(200);
@@ -304,10 +306,10 @@ void CGameControl::inputPasswordAndLogin()
 	CKeyMouMng::Ptr()->MouseMoveAndClick(1044,482);  //点击登录
 }
 
-bool CGameControl::CreateOneRole()
+bool CGameControl::createOneRole()
 {
 	LOG_DEBUG<<"可以创建角色了";
-	if(!FindImageInGameWnd("Role.png")){
+	if(!findImageInGameWnd("Role.png")){
 		Sleep(1000);
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(178,548);  //点击创建角色
 		Sleep(1000);
@@ -317,7 +319,7 @@ bool CGameControl::CreateOneRole()
 	m_RoleIndex++;
 	CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(691, 432);  //创建角色第二步
 	Sleep(1000);
-	while(!FindImageInGameWnd("NameCheckPass.png", 0.99, false))
+	while(!findImageInGameWnd("NameCheckPass.png", 0.99, false))
 	{
 		for (auto i = 0; i<12; i++)
 		{	
@@ -326,10 +328,9 @@ bool CGameControl::CreateOneRole()
 			Sleep(100);
 			CKeyMouMng::Ptr()->DirKeyUp(VK_BACK);
 		}
-		const auto name = CreateName(12);
+		const auto name = createName(12);
 		auto& account = config_instance.accounts.at(this->m_Index);
-		account.role_name = name;
-		account.status = STATUS_SUCCESS;
+		account.role_name.push_back(name);
 		config_instance.SaveData();
 		LOG_DEBUG<<"【角色名字】"<<name.c_str();
 		CKeyMouMng::Ptr()->InputString(name);
@@ -340,7 +341,7 @@ bool CGameControl::CreateOneRole()
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(400,321);//点击检测结果
 		Sleep(1000);
 	}
-	while(FindImageInGameWnd("Role.png"))
+	while(findImageInGameWnd("Role.png"))
 	{
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(370,354); //点击确定
 		Sleep(500);
@@ -356,18 +357,19 @@ bool CGameControl::CreateOneRole()
 		return false;
 	TCHAR ImagePath[MAX_PATH] = {0};
 	wsprintf(ImagePath, _T("%sMatchImage\\Game\\Success.png"), g_ExePath);
-	auto bFind = ImageMatchFromHwnd(hGameWnd,ImagePath,0.5,nXtmp,nYtmp,false);
+	auto bFind = imageMatchFromHwnd(hGameWnd,ImagePath,0.5,nXtmp,nYtmp,false);
 	if (bFind)
 	{
 		LOG_DEBUG<<"成功 的坐标 "<<nXtmp<<" y "<< nYtmp;
 		CKeyMouMng::Ptr()->MouseMoveAndClickGameWnd(nXtmp+95, nYtmp+76);  //点击编辑框
+		config_instance.accounts.at(this->m_Index).accountStatus = STATUS_SUCCESS;
 	}
 	Sleep(500);
 	LOG_DEBUG<<"点击创建角色成功";
 	return true;
 }
 
-BOOL CGameControl::SaveVerificationCodeImage()
+BOOL CGameControl::saveVerificationCodeImage()
 {
 	auto hWnd = GetLoginWnd();
 	BOOL bresMatched = FALSE;
@@ -424,7 +426,7 @@ BOOL CGameControl::SaveVerificationCodeImage()
 		//_DbgPrint("bRet = %d, 宽 = %d, 高 = %d, 窗体X坐标 = %d, 窗体Y坐标= %d",
 		//		   bRet ,nWidht,nHeight,rect.left,rect.top);
 
-		Img = HBitmapToLpl(hBitmap);
+		Img = hBitmapToLpl(hBitmap);
 
 		if (Img == NULL)
 		{
@@ -470,7 +472,7 @@ _Error:
 	return TRUE;
 }
 
-BOOL CGameControl::ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSame, OUT int& nX,OUT int& nY,bool bSave, bool bGray)
+BOOL CGameControl::imageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSame, OUT int& nX,OUT int& nY,bool bSave, bool bGray)
 {
 	BOOL bresMatched = FALSE;
 	LPBYTE   lpBits;
@@ -534,7 +536,7 @@ BOOL CGameControl::ImageMatchFromHwnd(HWND hWnd,const TCHAR* ImagePath,float fSa
 		//_DbgPrint("bRet = %d, 宽 = %d, 高 = %d, 窗体X坐标 = %d, 窗体Y坐标= %d",
 		//		   bRet ,nWidht,nHeight,rect.left,rect.top);
 
-		Img = HBitmapToLpl(hBitmap);
+		Img = hBitmapToLpl(hBitmap);
 
 		if (Img == NULL)
 		{
@@ -664,7 +666,7 @@ _Error:
 	return bresMatched;
 }
 
-IplImage* CGameControl::HBitmapToLpl(HBITMAP hBmp)
+IplImage* CGameControl::hBitmapToLpl(HBITMAP hBmp)
 {   
 	int image_width=0;
 	int image_height=0;
@@ -712,7 +714,7 @@ IplImage* CGameControl::HBitmapToLpl(HBITMAP hBmp)
 	}
 }
 
-BOOL CGameControl::FindImageInGameWnd(const string& image, float fSame, bool bGray)
+BOOL CGameControl::findImageInGameWnd(const string& image, float fSame, bool bGray)
 {
 	int nXtmp = 0,nYtmp = 0;
 	HWND hGameWnd = GetGameWnd();
@@ -720,12 +722,12 @@ BOOL CGameControl::FindImageInGameWnd(const string& image, float fSame, bool bGr
 		return FALSE;
 	TCHAR ImagePath[MAX_PATH] = {0};
 	wsprintf(ImagePath, _T("%sMatchImage\\Game\\%s"), g_ExePath, image.c_str());
-	auto bFind = ImageMatchFromHwnd(hGameWnd,ImagePath,fSame,nXtmp,nYtmp,false, bGray);
+	auto bFind = imageMatchFromHwnd(hGameWnd,ImagePath,fSame,nXtmp,nYtmp,false, bGray);
 	LOG_DEBUG<<"查找图片"<<image.c_str()<< " 结果 "<<bFind<<" X "<< nXtmp <<" y "<< nYtmp;
 	return bFind;
 }
 
-BOOL CGameControl::FindImageInLoginWnd(const string& image)
+BOOL CGameControl::findImageInLoginWnd(const string& image)
 {
 	int nXtmp = 0,nYtmp = 0;
 	HWND hLogin = GetLoginWnd();
@@ -733,12 +735,12 @@ BOOL CGameControl::FindImageInLoginWnd(const string& image)
 		return FALSE;
 	TCHAR ImagePath[MAX_PATH] = {0};
 	wsprintf(ImagePath, _T("%sMatchImage\\Game\\%s"), g_ExePath, image.c_str());
-	auto bFind = ImageMatchFromHwnd(hLogin,ImagePath,0.5,nXtmp,nYtmp,false);
+	auto bFind = imageMatchFromHwnd(hLogin,ImagePath,0.5,nXtmp,nYtmp,false);
 	LOG_DEBUG<<"查找图片"<<image.c_str()<< " 结果 "<<bFind<<" X "<< nXtmp <<" y "<< nYtmp;
 	return bFind;
 }
 
-string CGameControl::CreateName(const unsigned int & count)
+string CGameControl::createName(const unsigned int & count)
 {
 	string Name;
 	srand((int)time(0));
@@ -829,20 +831,31 @@ void CGameControl::SelectArea()
 	}	
 }
 
-void CGameControl::ResetIndex()
+void CGameControl::outputFile()
 {
+	CFileParser file;
+	file.SaveData();
+}
+
+void CGameControl::resetIndex()
+{
+	m_Stop = false;
 	m_Index = 0;
 }
 
 void CGameControl::GameLoop()
 {
-	while(true){
-		GameProcess();
+	if(m_Index >= config_instance.accounts.size()){
+		return;
 	}
-	ResetIndex();
+	while(true){
+		gameProcess();
+	}
+	resetIndex();
+	outputFile();
 }
 
-BOOL CGameControl::KillProcess(const string& processName)
+BOOL CGameControl::killProcess(const string& processName)
 {
 	CString strProcessName = common::stringToCString(processName);
 
@@ -884,7 +897,7 @@ BOOL CGameControl::KillProcess(const string& processName)
 	return FALSE;
 }
 
-bool CGameControl::SwitchVPN()
+bool CGameControl::switchVPN()
 {
 	CVPNControler controler;
 	controler.clickOnSwitchButton();
