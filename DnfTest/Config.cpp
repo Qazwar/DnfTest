@@ -23,79 +23,31 @@ Config::Config()
 	configData.Get("servername", servername);
 	configData.Get("areaname", areaname);
 	configData.Get("loginFailTimes", loginFailTimes);
-	LoadServerConfig();
-	LoadAccountConfig();	
-}
-
-std::string Config::readFileIntoString(char * filename)
-{
-	ifstream ifile(filename);
-	//将文件读入到ostringstream对象buf中
-	ostringstream buf;
-	char ch;
-	while (buf&&ifile.get(ch))
-		buf.put(ch);
-	//返回与流对象buf关联的字符串
-	return buf.str();
+	configData.Get("verification_account_code", verification_account_code);
+	configData.Get("verification_password", verification_password);
+	LoadServerConfig();	
 }
 
 void Config::SaveData()
 {
 	neb::CJsonObject root;
-	root.Add("game_path", this->game_path);
-	root.Add("ip_address", this->ip_address);
-	root.Add("ip_try_times", this->ip_try_times);
-	root.Add("firstRole", this->firstRole);
-	root.Add("firstRoleProfession", this->firstRoleProfession);
-	root.Add("secondRole", this->secondRole);
-	root.Add("secondRoleProfession", this->secondRoleProfession);
-	root.Add("servername", this->servername);
-	root.Add("areaname", this->areaname);
-	root.Add("loginFailTimes", this->loginFailTimes);
-	SaveAccountData();
+	root.Add("game_path", game_path);
+	root.Add("ip_address", ip_address);
+	root.Add("ip_try_times", ip_try_times);
+	root.Add("firstRole", firstRole);
+	root.Add("firstRoleProfession", firstRoleProfession);
+	root.Add("secondRole", secondRole);
+	root.Add("secondRoleProfession", secondRoleProfession);
+	root.Add("servername", servername);
+	root.Add("areaname", areaname);
+	root.Add("loginFailTimes", loginFailTimes);
+	root.Add("verification_account_code", verification_account_code);
+	root.Add("verification_password", verification_password);
 	neb::CJsonObject base;
 	base.Add("config", root);
 	common::PostConfig(common::stringToCString(base.ToString()));
 }
 
-void Config::SaveAccountData()
-{
-	ofstream ofile("account_config.json");
-	neb::CJsonObject pt_root;
-	neb::CJsonObject pt_accounts;
-	for (auto i(0); i < this->accounts.size(); i++)
-	{
-		const auto account = this->accounts.at(i);
-		neb::CJsonObject pt_item;
-		pt_item.Add("qq", account.qq);
-		pt_item.Add("password", account.password);
-		pt_item.Add("role_name", account.role_name);
-		pt_item.Add("status", account.status);
-		pt_accounts.Add(pt_item);
-	}
-	pt_root.Add("accounts",pt_accounts);
-	auto str = pt_root.ToString();
-	ofile.write(str.c_str(), str.size());
-	ofile.close();
-}
-
-void Config::LoadAccountConfig()
-{
-	neb::CJsonObject pt_root_account;
-	pt_root_account.Parse(readFileIntoString("account_config.json"));
-
-	auto accounts = pt_root_account["accounts"];
-	auto length = accounts.GetArraySize();
-	for (auto i(0); i < length; i++)
-	{
-		const auto item = accounts[i];
-		account_info account;
-		item.Get("qq", account.qq);
-		item.Get("password", account.password);
-		item.Get("status", account.status);
-		this->accounts.push_back(account);
-	}
-}
 
 void Config::LoadServerConfig()
 {

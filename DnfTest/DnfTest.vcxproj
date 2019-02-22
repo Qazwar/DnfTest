@@ -208,6 +208,7 @@
     <ClInclude Include="DialogVerificationCode.h" />
     <ClInclude Include="DnfTest.h" />
     <ClInclude Include="DnfTestDlg.h" />
+    <ClInclude Include="FileParser.h" />
     <ClInclude Include="GameControl.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="KeyMouMng.h" />
@@ -238,6 +239,7 @@
     <ClCompile Include="DialogVerificationCode.cpp" />
     <ClCompile Include="DnfTest.cpp" />
     <ClCompile Include="DnfTestDlg.cpp" />
+    <ClCompile Include="FileParser.cpp" />
     <ClCompile Include="GameControl.cpp" />
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="KeyMouMng.cpp" />

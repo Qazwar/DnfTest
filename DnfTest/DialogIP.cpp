@@ -1,4 +1,4 @@
-// DialogIP.cpp : Êµï¿½ï¿½ï¿½Ä¼ï¿½
+// DialogIP.cpp : ÊµÏÖÎÄ¼þ
 //
 
 #include "stdafx.h"
@@ -7,11 +7,12 @@
 #include "afxdialogex.h"
 
 
-// DialogIP ï¿½Ô»ï¿½ï¿½ï¿½
+// DialogIP ¶Ô»°¿ò
 
 IMPLEMENT_DYNAMIC(DialogIP, CDialogEx)
 
 DialogIP::DialogIP(CWnd* pParent /*=NULL*/)
+	: CChildDialog(DialogIP::IDD, pParent)
 {
 
 }
@@ -31,4 +32,16 @@ BEGIN_MESSAGE_MAP(DialogIP, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// DialogIP ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// DialogIP ÏûÏ¢´¦Àí³ÌÐò
+
+
+BOOL DialogIP::OnInitDialog()
+{
+	CChildDialog::OnInitDialog();
+
+	// TODO:  ÔÚ´ËÌí¼Ó¶îÍâµÄ³õÊ¼»¯
+	comboboxMode.AddString(_T("ET´úÀíÈí¼þ"));
+	comboboxMode.SetCurSel(0);
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// Òì³£: OCX ÊôÐÔÒ³Ó¦·µ»Ø FALSE
+}

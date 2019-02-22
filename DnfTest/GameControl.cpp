@@ -180,7 +180,7 @@ bool CGameControl::InputCodes()
 				if(SaveVerificationCodeImage())
 				{
 					CString strRe = CVerificationCode::Ptr()->pRecYZM_A((LPSTR)(LPCSTR)common::stringToCString(string(g_ExePath)+"VerificationCode\\tmp.png"),
-						(LPSTR)(LPCSTR)_T("xieguanjin"),(LPSTR)(LPCSTR)"Xieguanjin11",(LPSTR)(LPCSTR)_T("65395"));
+						common::stringToCString(config_instance.verification_account_code),common::stringToCString(config_instance.verification_password),(LPSTR)(LPCSTR)_T("65395"));
 					int pos = strRe.Find("|!|");
 					if (pos>-1)
 					{

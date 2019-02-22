@@ -40,6 +40,7 @@ private:
 	static void StartInputCodes(void*param);
 	static void StartCreateRole(void*param);
 	void InitData();
+	void refleshListCtrl();
 	LRESULT OnUpdateGameStatus(WPARAM wParam, LPARAM lParam);
 public:
 	CListCtrl m_ListAccount;
@@ -85,4 +86,5 @@ private:
 	DialogVerificationCode dlgVerificationCode;
 public:
 	afx_msg void OnTcnSelchangeTabTool(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeMfceditbrowseAccounts();
 };

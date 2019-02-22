@@ -22,4 +22,5 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CComboBox comboboxMode;
+	virtual BOOL OnInitDialog();
 };

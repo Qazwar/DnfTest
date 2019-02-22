@@ -55,13 +55,11 @@ public:
 	string secondRoleProfession;
 	string servername;
 	string areaname;
+	string verification_account_code;
+	string verification_password;
 	int loginFailTimes;//µ«¬º ß∞‹÷ÿ ‘¥Œ ˝
 	void SaveData();
-	void SaveAccountData();
 private:
-	string readFileIntoString(char * filename);
-	void LoadServerConfig();
-	void LoadAccountConfig();
-	  
+	void LoadServerConfig();	  
 };  
 #define config_instance Config::get_mutable_instance()

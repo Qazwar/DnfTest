@@ -10,6 +10,7 @@
 #include "Config.h"
 #include "Global.h"
 #include "DialogRegister.h"
+#include "FileParser.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -77,6 +78,7 @@ BEGIN_MESSAGE_MAP(CDnfTestDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_MFCBUTTON_TEST_PROFESSION, &CDnfTestDlg::OnBnClickedMfcbuttonTestProfession)
 	ON_BN_CLICKED(IDC_MFCBUTTON_TEST_AREA, &CDnfTestDlg::OnBnClickedMfcbuttonTestArea)
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_TOOL, &CDnfTestDlg::OnTcnSelchangeTabTool)
+	ON_EN_CHANGE(IDC_MFCEDITBROWSE_ACCOUNTS, &CDnfTestDlg::OnEnChangeMfceditbrowseAccounts)
 END_MESSAGE_MAP()
 
 
@@ -208,13 +210,8 @@ void CDnfTestDlg::InitData()
 	m_ListAccount.InsertColumn(0,"序号",LVCFMT_LEFT, 40);
 	m_ListAccount.InsertColumn(1,"qq号码", LVCFMT_LEFT, 80);
 	m_ListAccount.InsertColumn(2,"密码",LVCFMT_LEFT, 125);
-	for(auto i(0); i < config_instance.accounts.size(); i++)
-	{
-		 const auto& account = config_instance.accounts.at(i);
-		 m_ListAccount.InsertItem(i, common::IntToCString(i+1));
-		 m_ListAccount.SetItemText(i, 1, common::stringToCString(account.qq));
-		 m_ListAccount.SetItemText(i, 2, common::stringToCString(account.password));
-	}
+	refleshListCtrl();	
+
 	auto roleNameArray = common::SplitString(config_instance.role_name_type, ';');
 	for (auto i(0); i < roleNameArray->GetSize(); i++)
 	{
@@ -271,6 +268,18 @@ void CDnfTestDlg::InitData()
 
 	delete secondRoleArray;
 	secondRoleArray = nullptr;
+}
+
+void CDnfTestDlg::refleshListCtrl()
+{
+	m_ListAccount.DeleteAllItems();
+	for(auto i(0); i < config_instance.accounts.size(); i++)
+	{
+		const auto& account = config_instance.accounts.at(i);
+		m_ListAccount.InsertItem(i, common::IntToCString(i+1));
+		m_ListAccount.SetItemText(i, 1, common::stringToCString(account.qq));
+		m_ListAccount.SetItemText(i, 2, common::stringToCString(account.password));
+	}
 }
 
 LRESULT CDnfTestDlg::OnUpdateGameStatus(WPARAM wParam, LPARAM lParam)
@@ -545,4 +554,19 @@ void CDnfTestDlg::OnTcnSelchangeTabTool(NMHDR *pNMHDR, LRESULT *pResult)
 	default:
 		break;
 	}
+}
+
+
+void CDnfTestDlg::OnEnChangeMfceditbrowseAccounts()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CChildDialog::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+	// TODO:  在此添加控件通知处理程序代码
+	CString Text;
+	GetDlgItem(IDC_MFCEDITBROWSE_ACCOUNTS)->GetWindowText(Text);
+	CFileParser fileParser;
+	fileParser.LoadData(Text);
+	refleshListCtrl();
 }

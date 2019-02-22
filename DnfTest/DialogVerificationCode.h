@@ -23,4 +23,8 @@ protected:
 public:
 	virtual BOOL OnInitDialog();
 	CComboBox comboBoxPlatform;
+	CString accountCode;
+	CString password;
+	afx_msg void OnBnClickedButtonQuery();
+	afx_msg void OnBnClickedButtonRecharge();
 };

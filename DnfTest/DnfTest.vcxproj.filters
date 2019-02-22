@@ -105,6 +105,9 @@
     <ClInclude Include="Controls\ChildDialog.h">
       <Filter>Controls</Filter>
     </ClInclude>
+    <ClInclude Include="FileParser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DnfTest.cpp">
@@ -166,6 +169,9 @@
     </ClCompile>
     <ClCompile Include="Controls\ChildDialog.cpp">
       <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="FileParser.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

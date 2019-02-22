@@ -11,6 +11,7 @@ namespace common{
 	CString stringToCString(const string& str);
 	string CStringTostring(const CString& cs);
 	CStringArray* SplitString(const string& str,  char split);
+	vector<CString> SplitCString(CString strSource, CString ch);
 	string getMAC();
 	int QueryUser();
 	int RegisterUser();
