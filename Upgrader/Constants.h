@@ -1,0 +1,2 @@
+
+#define WM_UPDATE_COPY (WM_USER+100)

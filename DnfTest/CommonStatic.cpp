@@ -238,4 +238,125 @@ namespace common{
 		return pt_data.ToString();
 	}
 
+	string GetVersion()
+	{
+		CCurlInterface client;
+		string resp;
+		client.getData(ServerUrl+"/dnf/upgrade/version", resp, NULL, NULL);
+		neb::CJsonObject pt_root;
+		pt_root.Parse(common::CStringTostring(TranslateString(common::stringToCString(resp))));
+		neb::CJsonObject pt_data;
+		pt_root.Get("data", pt_data);
+		neb::CJsonObject pt_version;
+		pt_data.Get("version", pt_version);
+		return pt_version.ToString();
+	}
+
+	int Upgrade()
+	{
+		auto version = GetVersion();
+		HRSRC hsrc=FindResource(0, MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
+		HGLOBAL hgbl=LoadResource(0,hsrc);
+		BYTE *pBt=(BYTE *)LockResource(hgbl);
+		VS_FIXEDFILEINFO* pFinfo = (VS_FIXEDFILEINFO*)(pBt+40);    
+		CString valStr;   
+		valStr.Format(_T("\"%d.%d.%d.%d\""),
+			(pFinfo->dwFileVersionMS >> 16) & 0xFF,
+			(pFinfo->dwFileVersionMS) & 0xFF,
+			(pFinfo->dwFileVersionLS >> 16) & 0xFF,
+			(pFinfo->dwFileVersionLS) & 0xFF );
+		auto currentVersion = common::CStringTostring(valStr);
+		LOG_DEBUG<<"file version "<<currentVersion.c_str();
+		return version.compare(currentVersion);
+	}
+
+	list<string> getFileList()
+	{
+		CCurlInterface client;
+		string resp;
+		client.getData(ServerUrl+"/dnf/upgrade/files", resp, NULL, NULL);
+		neb::CJsonObject pt_root;
+		pt_root.Parse(common::CStringTostring(TranslateString(common::stringToCString(resp))));
+		neb::CJsonObject pt_data;
+		pt_root.Get("data", pt_data);
+		neb::CJsonObject pt_files;
+		pt_data.Get("files", pt_files);
+		list<string> listString;
+		for(auto index(0); index < pt_files.GetArraySize(); index++)
+		{
+			string fileName;
+			pt_files.Get(index, fileName);
+			listString.push_back(fileName);
+		}
+		return  listString;
+	}
+
+	string GetFilePath(const string& path)
+	{
+		auto csPath = stringToCString(path);
+		auto pos = csPath.ReverseFind('/');
+		auto filePath = csPath.Right(csPath.GetLength()-pos-1);
+		filePath = GetModuleDir()+_T("/downloads/")+filePath;
+		return CStringTostring(filePath);
+	}
+
+	CString GetModuleDir()
+	{
+		HMODULE module = GetModuleHandle(0); 
+		char pFileName[MAX_PATH]; 
+		GetModuleFileName(module, pFileName, MAX_PATH); 
+
+		CString csFullPath(pFileName); 
+		int nPos = csFullPath.ReverseFind( _T('\\') ); 
+		if( nPos > 0 ) 
+		{
+			return csFullPath.Left( nPos ); 
+		}			
+		return CString(""); 
+	}
+
+	void CreateDir(CString path)
+	{
+		path.Replace(_T('/'), _T('\\'));
+		int currentPos = 0;
+		CString currentPath;
+		while(true){
+			int nPos = path.Find( _T('\\'), currentPos);
+			if( nPos > 0 ) 
+			{
+				currentPos = nPos+1;
+				currentPath = path.Left(nPos); 
+			}else{
+				break;
+			}
+			if (!currentPath.IsEmpty()&&!DirectoryExist(currentPath))
+			{
+				CreateDirectory(currentPath);
+			}
+		}
+	}
+
+	BOOL DirectoryExist(const CString&path)
+	{
+		WIN32_FIND_DATA fd;
+		BOOL ret = FALSE;
+		HANDLE hFind = FindFirstFile(path, &fd);
+		if ((hFind != INVALID_HANDLE_VALUE) && (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			//Ä¿Â¼´æÔÚ
+			ret = TRUE;
+		}
+		FindClose(hFind);
+		return ret;
+	}
+
+	BOOL CreateDirectory(const CString&path)
+	{
+		SECURITY_ATTRIBUTES attrib;
+		attrib.bInheritHandle = FALSE;
+		attrib.lpSecurityDescriptor = NULL;
+		attrib.nLength = sizeof(SECURITY_ATTRIBUTES);
+		return ::CreateDirectory( path, &attrib);
+	}
+
 }

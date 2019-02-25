@@ -7,7 +7,7 @@
 #include <sstream>
 //json
 using namespace std;
-
+HWND CCurlInterface::parentHwnd = NULL;
 
 wstring CCurlInterface::AsciiToUnicode(const string& str) 
 {
@@ -62,7 +62,7 @@ CCurlInterface::CCurlInterface()
 
 int CCurlInterface::httpRequest( const string& strUrl, string &strResponse, const string* strHeader, const string* data)
 {
-		CURL *curl = curl = curl_easy_init();
+		CURL *curl = curl_easy_init();
 		CURLcode res;
 		std::stringstream out;//HTTP报文头  
 		struct curl_slist* headers = NULL;
@@ -106,6 +106,92 @@ int CCurlInterface::httpRequest( const string& strUrl, string &strResponse, cons
 		} 
 
 		return 0;
+}
+
+static size_t write_file(void *ptr, size_t size, size_t nmemb, void *stream)  
+{  
+	size_t written = fwrite(ptr, size, nmemb, (FILE *)stream);  
+	return written;  
+}
+
+int CCurlInterface::ProgressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)  
+{  
+	if ( dltotal > -0.1 && dltotal < 0.1 )  
+		return 0;  
+	int nPos = (int) ( (dlnow/dltotal)*100 );  
+	//通知进度条更新下载进度  
+	::PostMessage(parentHwnd, WM_DOWNLOAD, nPos, 0);
+	return 0; 
+}
+
+int CCurlInterface::fileDownload(const string& fileName, HWND hwnd)
+{
+	CCurlInterface::parentHwnd = hwnd;
+	auto filePath = common::GetFilePath(fileName);
+	common::CreateDir(common::stringToCString(filePath));
+	CURL* curl = curl_easy_init();
+	FILE *pagefile = fopen(filePath.c_str(),"wb");
+	do 
+	{
+		CURLcode res = curl_easy_setopt(curl, CURLOPT_URL, ServerUrl+"/dnf/upgrade/download");
+		if (res != CURLE_OK)  
+		{   
+			break;
+		}  
+		struct curl_slist* headers = NULL;
+		headers = curl_slist_append(headers, (string("filename:")+fileName).c_str());
+		res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		if (res != CURLE_OK)  
+		{   
+			break;
+		} 
+		// 设置重定向的最大次数  
+		res = curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5);  
+		if (res != CURLE_OK)  
+		{   
+			break;
+		} 
+		// 设置301、302跳转跟随location  
+		res = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);  
+		if (res != CURLE_OK)  
+		{   
+			break;
+		} 
+		res = curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);  
+		if (res != CURLE_OK)  
+		{   
+			break;
+		} 
+		//设置进度回调函数  
+		res = curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, ProgressCallback);
+		if (res != CURLE_OK)  
+		{   
+			break;
+		} 
+		//开始执行请求  
+
+		res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_file); 
+		if (res != CURLE_OK)  
+		{   
+			break;
+		} 
+		if (pagefile) {
+			/* write the page body to this file handle */   
+			curl_easy_setopt(curl, CURLOPT_WRITEDATA, pagefile); 
+			/* get it! */   
+			CURLcode retcCode = curl_easy_perform(curl);  
+			//查看是否有出错信息  
+			const char* pError = curl_easy_strerror(retcCode);  
+			/* close the header file */
+			fclose(pagefile);  
+		}  
+	} while (false);	
+	//清理curl，和前面的初始化匹配
+	if(pagefile){
+		fclose(pagefile);
+	}
+	curl_easy_cleanup(curl);  
+	return 0; 
 }
 
 int CCurlInterface::getData( const string& strUrl, string &strResponse, const string* strHeader, const string* data)

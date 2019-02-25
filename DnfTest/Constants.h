@@ -17,7 +17,8 @@ enum GameStatus{
 	GAME_IP,//显示ip地址
 	GAME_IP_FAILED//切换IP失败
 };
-const string ServerUrl = "https://dev.utomarket.com:9055";
+const string ServerUrl = "https://dnf.utomarket.com:9055";
+//const string ServerUrl = "http://127.0.0.1:9091";
 //控制类型
 enum ControllerType{
 	CONTROL_WINDOWS_MESSAGE = 1,//windows消息
@@ -25,3 +26,4 @@ enum ControllerType{
 };
 
 #define WM_UPDATE_GAME_STATUS (WM_USER+1)
+#define WM_DOWNLOAD (WM_USER+2)

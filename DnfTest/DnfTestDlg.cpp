@@ -11,6 +11,7 @@
 #include "Global.h"
 #include "DialogRegister.h"
 #include "FileParser.h"
+#include "DialogDownloader.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -96,6 +97,14 @@ BOOL CDnfTestDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	//初始化WinIo库
 	InitData();
+	if(common::Upgrade()>0){
+		AfxMessageBox(_T("有新版本可下载，点击下载"));
+		DialogDownloader dlg;
+		dlg.DoModal();
+		ShellExecute(NULL,"open","Upgrader.exe",NULL,NULL,SW_SHOWNORMAL);
+		PostQuitMessage(0);
+	}
+	
 	if(common::QueryUser()==0){
 		this->ShowWindow(SW_HIDE);
 		CDialogRegister dlg;

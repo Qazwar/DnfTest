@@ -18,4 +18,12 @@ namespace common{
 	string GetDefines();
 	void PostConfig(const CString& data);
 	string GetConfig();
+	string GetVersion();
+	int Upgrade();
+	list<string> getFileList();
+	string GetFilePath(const string& path);
+	CString GetModuleDir();
+	void CreateDir(CString path);
+	BOOL DirectoryExist(const CString&path);
+	BOOL CreateDirectory(const CString&path);
 }

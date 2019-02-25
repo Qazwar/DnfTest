@@ -26,9 +26,12 @@ class CCurlInterface{
 	static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream);
 	CURLoption m_Option;
 	int httpRequest( const string& strUrl, string &strResponse, const string* strHeader = NULL, const string* data = NULL);
+	static HWND parentHwnd;
+	static int ProgressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
 public:
 	CCurlInterface();
 	int postData( const string& strUrl, string &strResponse, const string* strHeader = NULL, const string* data = NULL);
 	int getData( const string& strUrl, string &strResponse, const string* strHeader = NULL, const string* data = NULL);
+	int fileDownload(const string& fileName, HWND hwnd);
 };
 

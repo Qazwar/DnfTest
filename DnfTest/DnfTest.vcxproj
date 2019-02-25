@@ -203,6 +203,7 @@
     <ClInclude Include="Controls\ChildDialog.h" />
     <ClInclude Include="CurlInterface.h" />
     <ClInclude Include="DD.h" />
+    <ClInclude Include="DialogDownloader.h" />
     <ClInclude Include="DialogIP.h" />
     <ClInclude Include="DialogRegister.h" />
     <ClInclude Include="DialogVerificationCode.h" />
@@ -234,6 +235,7 @@
     <ClCompile Include="Controls\ChildDialog.cpp" />
     <ClCompile Include="CurlInterface.cpp" />
     <ClCompile Include="DD.cpp" />
+    <ClCompile Include="DialogDownloader.cpp" />
     <ClCompile Include="DialogIP.cpp" />
     <ClCompile Include="DialogRegister.cpp" />
     <ClCompile Include="DialogVerificationCode.cpp" />
