@@ -22,6 +22,7 @@ namespace common{
 	int Upgrade();
 	list<string> getFileList();
 	string GetFilePath(const string& path);
+	CString GetFileName(CString path);
 	CString GetModuleDir();
 	void CreateDir(CString path);
 	BOOL DirectoryExist(const CString&path);

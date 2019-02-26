@@ -109,7 +109,7 @@ int CCurlInterface::httpRequest( const string& strUrl, string &strResponse, cons
 }
 
 static size_t write_file(void *ptr, size_t size, size_t nmemb, void *stream)  
-{  
+{
 	size_t written = fwrite(ptr, size, nmemb, (FILE *)stream);  
 	return written;  
 }
@@ -133,7 +133,7 @@ int CCurlInterface::fileDownload(const string& fileName, HWND hwnd)
 	FILE *pagefile = fopen(filePath.c_str(),"wb");
 	do 
 	{
-		CURLcode res = curl_easy_setopt(curl, CURLOPT_URL, ServerUrl+"/dnf/upgrade/download");
+		CURLcode res = curl_easy_setopt(curl, CURLOPT_URL, (ServerUrl+"/dnf/upgrade/download").c_str());
 		if (res != CURLE_OK)  
 		{   
 			break;
@@ -145,6 +145,9 @@ int CCurlInterface::fileDownload(const string& fileName, HWND hwnd)
 		{   
 			break;
 		} 
+
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false); // if want to use https  
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false); // set peer and host verify false  
 		// 设置重定向的最大次数  
 		res = curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5);  
 		if (res != CURLE_OK)  
@@ -168,20 +171,30 @@ int CCurlInterface::fileDownload(const string& fileName, HWND hwnd)
 		{   
 			break;
 		} 
-		//开始执行请求  
-
+		//开始执行请求
 		res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_file); 
 		if (res != CURLE_OK)  
 		{   
 			break;
 		} 
+		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);  
+		curl_easy_setopt(curl, CURLOPT_HEADER, 0);//去掉header
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10); // set transport and time out time  
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30); 
 		if (pagefile) {
 			/* write the page body to this file handle */   
-			curl_easy_setopt(curl, CURLOPT_WRITEDATA, pagefile); 
+			res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, pagefile); 
+			if (res != CURLE_OK)  
+			{   
+				break;
+			}
 			/* get it! */   
-			CURLcode retcCode = curl_easy_perform(curl);  
+			res = curl_easy_perform(curl);  
 			//查看是否有出错信息  
-			const char* pError = curl_easy_strerror(retcCode);  
+			const char* pError = curl_easy_strerror(res);
+			if(res != CURLE_OK){
+				LOG_DEBUG<<pError;
+			}
 			/* close the header file */
 			fclose(pagefile);  
 		}  

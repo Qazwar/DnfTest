@@ -97,6 +97,7 @@ BOOL CDnfTestDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	//初始化WinIo库
 	InitData();
+#ifndef _DEBUG
 	if(common::Upgrade()>0){
 		AfxMessageBox(_T("有新版本可下载，点击下载"));
 		DialogDownloader dlg;
@@ -104,6 +105,7 @@ BOOL CDnfTestDlg::OnInitDialog()
 		ShellExecute(NULL,"open","Upgrader.exe",NULL,NULL,SW_SHOWNORMAL);
 		PostQuitMessage(0);
 	}
+#endif // _DEBUG
 	
 	if(common::QueryUser()==0){
 		this->ShowWindow(SW_HIDE);

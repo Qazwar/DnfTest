@@ -30,6 +30,9 @@ void DialogDownloader::progressData(void* param)
 	CCurlInterface curl;
 	for (auto Index(fileList.begin()); Index != fileList.end(); Index++)
 	{
+		CString Text;
+		Text.Format(_T("µ±Ç°ÏÂÔØ[%s]"), common::GetFileName(common::stringToCString(*Index)));
+		pThis->GetDlgItem(IDC_STATIC_FILENAME)->SetWindowText(Text);
 		curl.fileDownload(*Index, pThis->GetSafeHwnd());
 	}
 	pThis->PostMessage(WM_CLOSE);
@@ -46,6 +49,9 @@ LRESULT DialogDownloader::OnGameDownload(WPARAM wParam, LPARAM lParam)
 {
 	auto pos = (int)wParam;
 	progressDownload.SetPos(pos);
+	CString Text;
+	Text.Format(_T("%d"), pos);
+	progressDownload.SetWindowText(Text);
 	return 0;
 }
 

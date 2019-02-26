@@ -294,10 +294,20 @@ namespace common{
 	string GetFilePath(const string& path)
 	{
 		auto csPath = stringToCString(path);
-		auto pos = csPath.ReverseFind('/');
-		auto filePath = csPath.Right(csPath.GetLength()-pos-1);
+		auto pos = csPath.Find(_T("static/version/"));
+		auto filePath = csPath.Right(csPath.GetLength()-(pos+15));
 		filePath = GetModuleDir()+_T("/downloads/")+filePath;
 		return CStringTostring(filePath);
+	}
+
+	CString GetFileName(CString path)
+	{
+		auto pos = path.ReverseFind(_T('\\'));
+		if(pos==-1){
+			pos = path.ReverseFind(_T('/'));
+		}
+		path = path.Right(path.GetLength()-(pos+1));
+		return path;
 	}
 
 	CString GetModuleDir()
