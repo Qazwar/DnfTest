@@ -95,6 +95,9 @@ public:
 
 	};
 	~CKeyMouMng(){};
+	int More(int mini,int maxi);//带轨迹移动鼠标
+	void Contra(int dual_X,int dual_Y); //有轨迹移动鼠标
+	void MouseMoveTo(int dual_X,int dual_Y);
 public:
 	BOOL MouseMove(LONG dx, LONG dy, USHORT Flags = MOUSE_MOVE_ABSOLUTE);
 	BOOL MouseButtonEx(USHORT ButtonFlags);
