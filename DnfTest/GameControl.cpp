@@ -22,6 +22,9 @@ m_Index(0), m_hShow(hShow),m_Stop(false),m_RoleIndex(0)
 
 bool CGameControl::findCurrentAccountIndex()
 {
+
+	killProcess("Client.exe");
+	killProcess("DNF.exe");
 	if(m_Stop){
 		return false;
 	}
@@ -70,8 +73,6 @@ bool CGameControl::gameProcess()
 		killProcess("DNF.exe");
 	}
 	if(!bSuccess){
-		killProcess("Client.exe");
-		killProcess("DNF.exe");
 		return findCurrentAccountIndex();
 	}
 	if(!CreateRole()){
@@ -848,9 +849,7 @@ void CGameControl::GameLoop()
 	if(m_Index >= config_instance.accounts.size()){
 		return;
 	}
-	while(true){
-		gameProcess();
-	}
+	while(gameProcess()){};
 	resetIndex();
 	outputFile();
 }

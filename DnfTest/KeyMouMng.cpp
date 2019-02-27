@@ -278,29 +278,39 @@ void CKeyMouMng::Contra(int dual_X,int dual_Y)
 	}
 	goverX=abs((problem_X-factuX))/used*Shah;  //轨迹X
 	goverY=abs((problem_Y-factuY))/used*Shah;  //轨迹Y
-
+	if(used<=Shah){//如果太相近，则直接移动到终点
+		MouseMoveTo(dual_X,dual_Y);
+		return;
+	}
+	srand((unsigned)time(NULL)); //初始化随机数种子
 	while(true)
 	{
-		if(factuX<=dual_X){
+		if(factuX<dual_X){
 			factuX=factuX+goverX; //当前X坐标+轨迹X
 		}else{
 			factuX=factuX-goverX; //当前X坐标+轨迹X
 		}
-		if(factuY<=dual_Y){
+		if(factuY<dual_Y){
 			factuY=factuY+goverY; //当前Y坐标+轨迹Y
 		}else{
 			factuY=factuY-goverX;
 		}
 		own=More(10,25); //移动延时
 		//每运行5次就随机产生一个随机偏差轨迹，模拟手动移动轨迹
-		ShahX=More(-Shah*4,Shah*4); //移动偏差X
-		ShahY=More(-Shah*4,Shah*4); //移动偏差Y
+		ShahX=More(Shah/2,Shah*4); //移动偏差X
+		ShahY=More(Shah/2,Shah*4); //移动偏差Y
+		if(rand()%2==0){
+			ShahX = -ShahX;
+		}
+		if(rand()%2==0){
+			ShahY = -ShahY;
+		}
 		
 		auto current_X = int(factuX)+ShahX;
 		auto current_Y = int(factuY)+ShahY;
 		MouseMoveTo(current_X,current_Y); //任意移动鼠标的API也可以是驱动键盘
 		Sleep(own); //随机延迟
-		if (abs(dual_X-current_X)<=abs(ShahX) && abs(dual_Y-current_Y)<=abs(ShahY))
+		if (abs(dual_X-current_X) <= (abs(ShahX)<abs(Shah)? abs(Shah): abs(ShahX)) && abs(dual_Y-current_Y) <= (abs(ShahY)<abs(Shah)? abs(Shah): abs(ShahY)))
 		{
 			MouseMoveTo(dual_X,dual_Y);//移动到终点附近后直接移动到终点
 			break;
